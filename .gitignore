@@ -1,3 +1,4 @@
+.dev
 sandbox
 weekly
 claud.md
@@ -5,3 +6,4 @@ examples
 docs
 roadmap.md
 BACKLOG.md
+.env
