@@ -7,9 +7,12 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/bete7512/pulse/eventstore"
 	"github.com/bete7512/pulse/pkg/common"
+	"github.com/bete7512/pulse/projection"
+	"github.com/bete7512/pulse/query"
 	"github.com/bete7512/pulse/service"
 	"github.com/bete7512/pulse/worker"
 	"github.com/joho/godotenv"
@@ -30,15 +33,19 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 	db, err := common.InitDbConnection(ctx, dbHost)
+	if err != nil {
+		log.Fatalf("failed to connect to database: %v", err)
+	}
 	store := eventstore.NewPostgresEventStore(db)
-	svc := service.New(store)
-	w := worker.New(store)
+	query := query.New(db)
+	proj := projection.New(store, db, 500*time.Millisecond, logger)
+
+	svc := service.New(store, query)
+	w := worker.New(svc)
 
 	go w.Run(ctx)
-	for i := 0; i < 6; i++ { // demo: submit a few jobs
-		svc.Submit(ctx, []byte(`{"name":"abebe"}`))
-	}
-
+	go proj.Run(ctx)
+	
 	logger.Info("pulse started succesfully")
 	// TODO: in the future there must be gracefull shutdown
 	<-ctx.Done()

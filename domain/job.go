@@ -2,8 +2,13 @@ package domain
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 )
+
+// ErrInvalidTransition is returned by a Job command when the requested transition
+// is illegal for the job's current (folded) status.
+var ErrInvalidTransition = errors.New("invalid job state transition")
 
 type JobStatus string
 
@@ -32,6 +37,7 @@ func RebuildJob(events []Event) Job {
 		case JobSubmitted:
 			job.Status = Pending
 			job.SubmittedAt = event.CreatedAt
+			job.Payload = event.Payload
 		case JobStarted:
 			job.Status = Running
 			job.StartedAt = &event.CreatedAt
@@ -41,6 +47,7 @@ func RebuildJob(events []Event) Job {
 		case JobFailed:
 			job.Status = Failed
 			job.CompletedAt = &event.CreatedAt
+			job.Payload = event.Payload
 		case JOBCanceled:
 			job.Status = Canceled
 			job.CompletedAt = &event.CreatedAt
@@ -49,8 +56,41 @@ func RebuildJob(events []Event) Job {
 		if job.Status != JobStatus("") {
 			job.ID = event.JobId
 			job.Message = event.Message
-			job.Payload = event.Payload
 		}
 	}
 	return job
+}
+
+// Start transitions a pending job to running.
+func (j Job) Start() (Event, error) {
+	if j.Status != Pending { // the invariant
+		return Event{}, ErrInvalidTransition // can't start a non-pending job
+	}
+	return Event{JobId: j.ID, Type: JobStarted}, nil
+}
+
+// Complete transitions a running job to completed.
+func (j Job) Complete() (Event, error) {
+	if j.Status != Running { // the invariant
+		return Event{}, ErrInvalidTransition // can't complete a job that isn't running
+	}
+	return Event{JobId: j.ID, Type: JobCompleted}, nil
+}
+
+// Cancel transitions a non-terminal job to canceled.
+func (j Job) Cancel() (Event, error) {
+	if j.isTerminal() { // the invariant
+		return Event{}, ErrInvalidTransition // can't cancel an already finished job
+	}
+	return Event{JobId: j.ID, Type: JOBCanceled}, nil
+}
+
+// isTerminal reports whether the job has reached a final, immutable status.
+func (j Job) isTerminal() bool {
+	switch j.Status {
+	case Completed, Failed, Canceled:
+		return true
+	default:
+		return false
+	}
 }

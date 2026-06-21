@@ -3,19 +3,23 @@ package worker
 import (
 	"context"
 	"time"
-
-	"github.com/bete7512/pulse/domain"
-	"github.com/bete7512/pulse/eventstore"
 )
 
-type Worker struct {
-	store eventstore.EventStore
+// JobService is the slice of the service the worker drives jobs through: it finds
+// jobs awaiting work and changes their state via domain command methods (and their
+// invariants) instead of raw event appends.
+type JobService interface {
+	PendingJobs(ctx context.Context) ([]string, error)
+	StartJob(ctx context.Context, jobId string) error
+	CompleteJob(ctx context.Context, jobId string) error
 }
 
-func New(store eventstore.EventStore) *Worker {
-	return &Worker{
-		store: store,
-	}
+type Worker struct {
+	svc JobService
+}
+
+func New(svc JobService) *Worker {
+	return &Worker{svc: svc}
 }
 
 func (w *Worker) Run(ctx context.Context) {
@@ -27,23 +31,19 @@ func (w *Worker) Run(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			events, _ := w.store.ListSubmittedEvents(ctx)
-			for _, e := range events {
-				w.runJob(ctx, e.JobId)
+			ids, _ := w.svc.PendingJobs(ctx)
+			for _, id := range ids {
+				w.runJob(ctx, id)
 			}
 		}
 	}
 }
 
 func (w *Worker) runJob(ctx context.Context, jobId string) error {
-	event := domain.Event{
-		JobId: jobId,
-		Type:  domain.JobStarted,
+	if err := w.svc.StartJob(ctx, jobId); err != nil {
+		return err
 	}
-	w.store.Add(ctx, event)
 	// TODO: magics here that to be called by developer function over the network
 	// via sdk, grpc,..... however whatever is being done here later it will help developer execute their code
-	event.Type = domain.JobCompleted
-	w.store.Add(ctx, event)
-	return nil
+	return w.svc.CompleteJob(ctx, jobId)
 }

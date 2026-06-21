@@ -14,8 +14,7 @@ type MigrationService interface {
 	Run(ctx context.Context, dbPool *pgxpool.Pool, args []string) error
 }
 
-type Config struct {
-}
+type Config struct {}
 type migrationService struct {
 	config *Config
 }
@@ -61,4 +60,5 @@ func (s *migrationService) Run(ctx context.Context, dbPool *pgxpool.Pool, args [
 
 func (s *migrationService) registerMigrations() {
 	s.registerMigration_0001CreateEvents()
+	s.registerMigration_0002CreatJobs()
 }

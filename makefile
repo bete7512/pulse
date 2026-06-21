@@ -11,4 +11,4 @@ migrate_status:
 	@go run cmd/migrate/main.go status
 run:
 	@echo "Starting the application..."
-	@go run cmd/pulsed/main.go
+	@go run -race cmd/pulsed/main.go
