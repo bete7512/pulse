@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bete7512/pulse/domain"
+	"github.com/bete7512/pulse/internal/domain"
 	"github.com/google/go-cmp/cmp"
 )
 

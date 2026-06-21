@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/bete7512/pulse/domain"
-	"github.com/bete7512/pulse/eventstore"
+	"github.com/bete7512/pulse/internal/domain"
+	"github.com/bete7512/pulse/internal/eventstore"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )

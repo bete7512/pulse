@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/bete7512/pulse/domain"
+	"github.com/bete7512/pulse/internal/domain"
 	pkg_errors "github.com/bete7512/pulse/pkg/errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"

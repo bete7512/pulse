@@ -61,4 +61,5 @@ func (s *migrationService) Run(ctx context.Context, dbPool *pgxpool.Pool, args [
 func (s *migrationService) registerMigrations() {
 	s.registerMigration_0001CreateEvents()
 	s.registerMigration_0002CreatJobs()
+	s.registerMigration_0003AddEventTopic()
 }

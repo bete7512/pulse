@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/bete7512/pulse/domain"
+	"github.com/bete7512/pulse/internal/domain"
 	pkg_errors "github.com/bete7512/pulse/pkg/errors"
 	"github.com/gofrs/uuid/v5"
 	"github.com/jackc/pgx/v5"
@@ -19,7 +19,7 @@ const uniqueViolation = "23505"
 type EventStore interface {
 	Append(ctx context.Context, event domain.Event) (string, error)
 	LoadEventsForJob(ctx context.Context, jobId string) ([]domain.Event, error)
-	ListSubmitted(ctx context.Context) ([]domain.Event, error)
+	ListEventsByTopics(ctx context.Context, topics []string) ([]domain.Event, error)
 }
 
 // PostgresEventStore is the production EventStore backed by Postgres (pgx).
@@ -51,11 +51,11 @@ func (s *PostgresEventStore) Append(ctx context.Context, e domain.Event) (string
 	e.CreatedAt = time.Now()
 
 	const query = `
-		INSERT INTO events (id, job_id, type, sequence, payload, message, created_at)
+		INSERT INTO events (id, job_id, type, sequence, payload, message, created_at, topic)
 		VALUES (
 			@id, @job_id, @type,
 			(SELECT COALESCE(MAX(sequence), 0) + 1 FROM events WHERE job_id = @job_id),
-			@payload, @message, @created_at
+			@payload, @message, @created_at, @topic
 		)
 		RETURNING job_id`
 
@@ -67,6 +67,7 @@ func (s *PostgresEventStore) Append(ctx context.Context, e domain.Event) (string
 		"payload":    e.Payload,
 		"message":    e.Message,
 		"created_at": e.CreatedAt,
+		"topic":      e.Topic,
 	}).Scan(&jobID)
 	if err != nil {
 		if isUniqueViolation(err) {
@@ -89,7 +90,7 @@ func isUniqueViolation(err error) bool {
 func (s *PostgresEventStore) LoadEventsForJob(ctx context.Context, jobID string) ([]domain.Event, error) {
 
 	const query = `
-		SELECT id, type, job_id, sequence, payload, message, created_at
+		SELECT id, type, job_id, sequence, payload, message, created_at, topic
 		FROM events
 		WHERE job_id = $1
 		ORDER BY sequence`
@@ -101,24 +102,38 @@ func (s *PostgresEventStore) LoadEventsForJob(ctx context.Context, jobID string)
 	return pgx.CollectRows(rows, pgx.RowToStructByPos[domain.Event])
 }
 
-// ListSubmitted returns, for each job, its latest event — but only when that
-// latest event is JOB_SUBMITTED (i.e. jobs awaiting a worker).
+// ListEventsByTopics returns, for each job, its latest event — but only when that
+// latest event is JOB_SUBMITTED (i.e. jobs awaiting a worker). An empty/nil topics
+// slice matches every topic; otherwise only jobs whose topic is in topics.
 // TODO: in the future make this by pagination
-func (s *PostgresEventStore) ListSubmitted(ctx context.Context) ([]domain.Event, error) {
+func (s *PostgresEventStore) ListEventsByTopics(ctx context.Context, topics []string) ([]domain.Event, error) {
 
 	const query = `
-		SELECT id, type, job_id, sequence, payload, message, created_at
+		SELECT id, type, job_id, sequence, payload, message, created_at, topic
 		FROM (
 			SELECT DISTINCT ON (job_id)
-				id, type, job_id, sequence, payload, message, created_at
+				id, type, job_id, sequence, payload, message, created_at, topic
 			FROM events
 			ORDER BY job_id, sequence DESC
 		) latest
-		WHERE type = $1`
+		WHERE type = @event_type
+		  AND (@topics::text[] IS NULL OR topic = ANY(@topics))`
 
-	rows, err := s.pool.Query(ctx, query, domain.JobSubmitted)
+	rows, err := s.pool.Query(ctx, query, pgx.NamedArgs{
+		"event_type": domain.JobSubmitted,
+		"topics":     topicFilter(topics),
+	})
 	if err != nil {
 		return nil, err
 	}
 	return pgx.CollectRows(rows, pgx.RowToStructByPos[domain.Event])
+}
+
+// topicFilter normalizes an empty slice to nil so the SQL @topics::text[] IS NULL
+// branch (match every topic) fires instead of ANY('{}') matching nothing.
+func topicFilter(topics []string) []string {
+	if len(topics) == 0 {
+		return nil
+	}
+	return topics
 }

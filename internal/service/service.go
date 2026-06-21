@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 
-	"github.com/bete7512/pulse/domain"
-	"github.com/bete7512/pulse/eventstore"
+	"github.com/bete7512/pulse/internal/domain"
+	"github.com/bete7512/pulse/internal/eventstore"
+	"github.com/bete7512/pulse/internal/query"
 	pkg_errors "github.com/bete7512/pulse/pkg/errors"
-	"github.com/bete7512/pulse/query"
 	"github.com/gofrs/uuid/v5"
 )
 
@@ -28,13 +28,14 @@ func New(store eventstore.EventStore, query query.JobReader) *Service {
 	}
 }
 
-func (s *Service) Submit(ctx context.Context, payload []byte) (string, error) {
+func (s *Service) Submit(ctx context.Context, topic string, payload []byte) (string, error) {
 	jobId, err := uuid.NewV7()
 	if err != nil {
 		return "", err
 	}
 	event := domain.Event{
 		JobId:   jobId.String(),
+		Topic:   topic,
 		Payload: payload,
 		Type:    domain.JobSubmitted,
 	}
@@ -45,9 +46,9 @@ func (s *Service) GetJob(ctx context.Context, jobId string) (*domain.Job, error)
 	return s.query.GetJob(ctx, jobId)
 }
 
-// PendingJobs returns the ids of jobs awaiting a worker (latest event is JobSubmitted).
+// PendingJobs returns the ids of every job awaiting a worker (latest event is JobSubmitted).
 func (s *Service) PendingJobs(ctx context.Context) ([]string, error) {
-	events, err := s.store.ListSubmitted(ctx)
+	events, err := s.store.ListEventsByTopics(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +57,37 @@ func (s *Service) PendingJobs(ctx context.Context) ([]string, error) {
 		ids[i] = e.JobId
 	}
 	return ids, nil
+}
+
+// ListPendingJobsByTopics returns the dispatch-ready view (id, topic, payload) of jobs
+// awaiting a worker whose topic is in topics — the gRPC StreamJobs poll query.
+func (s *Service) ListPendingJobsByTopics(ctx context.Context, topics []string) ([]domain.Job, error) {
+	events, err := s.store.ListEventsByTopics(ctx, topics)
+	if err != nil {
+		return nil, err
+	}
+	jobs := make([]domain.Job, len(events))
+	for i, e := range events {
+		// e is the JobSubmitted head, so it carries everything dispatch needs.
+		jobs[i] = domain.Job{
+			ID:      e.JobId,
+			Topic:   e.Topic,
+			Status:  domain.Pending,
+			Payload: e.Payload,
+		}
+	}
+	return jobs, nil
+}
+
+// GetJobForDispatch folds a single job from its event stream so a worker can be
+// handed its type and payload.
+func (s *Service) GetJobForDispatch(ctx context.Context, jobId string) (*domain.Job, error) {
+	events, err := s.store.LoadEventsForJob(ctx, jobId)
+	if err != nil {
+		return nil, err
+	}
+	job := domain.RebuildJob(events)
+	return &job, nil
 }
 
 // transition is the shared command flow: LoadEventsForJob → RebuildJob → cmd → Append.
@@ -96,4 +128,11 @@ func (s *Service) CompleteJob(ctx context.Context, jobId string) error {
 
 func (s *Service) CancelJob(ctx context.Context, jobId string) error {
 	return s.transition(ctx, jobId, domain.Job.Cancel)
+}
+
+// FailJob records a job failure (with its reason) through the same transition flow.
+func (s *Service) FailJob(ctx context.Context, jobId, reason string) error {
+	return s.transition(ctx, jobId, func(j domain.Job) (domain.Event, error) {
+		return j.Fail(reason)
+	})
 }

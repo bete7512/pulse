@@ -1,0 +1,57 @@
+syntax = "proto3";
+package pulse.v1;
+option go_package = "github.com/bete7512/pulse/gen/pulsev1";
+
+service PulseService {
+  rpc SubmitJob   (SubmitJobRequest)   returns (SubmitJobResponse);        // client
+  rpc GetJob      (GetJobRequest)      returns (GetJobResponse);           // client
+  rpc StreamJobs  (StreamJobsRequest)  returns (stream StreamJobsResponse);// worker subscribes
+  rpc ReportResult(ReportResultRequest) returns (ReportResultResponse);    // worker reports
+}
+
+message SubmitJobRequest  {
+    string topic = 1;
+    bytes payload = 2;
+ }
+
+message SubmitJobResponse { 
+     string job_id = 1;
+}
+
+message GetJobRequest     { 
+    string job_id = 1; 
+}
+
+message GetJobResponse {
+    JobView job = 1;
+}
+
+message JobView           {
+    string job_id = 1;
+    string status = 2;
+}
+
+message StreamJobsRequest {
+    repeated string topics = 1;
+}
+
+message StreamJobsResponse {
+    JobAssignment assignment = 1;
+}
+
+message JobAssignment     {
+    string job_id = 1;
+    string topic = 2;
+    bytes payload = 3;
+    int32 attempt = 4;
+}
+
+message ReportResultRequest { 
+    string job_id = 1; 
+    bool success = 2; 
+    string error = 3; 
+}
+
+message ReportResultResponse {
+
+}

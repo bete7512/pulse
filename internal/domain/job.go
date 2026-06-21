@@ -22,6 +22,7 @@ const (
 
 type Job struct {
 	ID          string          `json:"id"`
+	Topic       string          `json:"topic"` // job topic, carried from the JobSubmitted event
 	Status      JobStatus       `json:"status"`
 	Payload     json.RawMessage `json:"payload"`
 	Message     string          `json:"message"`
@@ -38,6 +39,7 @@ func RebuildJob(events []Event) Job {
 			job.Status = Pending
 			job.SubmittedAt = event.CreatedAt
 			job.Payload = event.Payload
+			job.Topic = event.Topic
 		case JobStarted:
 			job.Status = Running
 			job.StartedAt = &event.CreatedAt
@@ -83,6 +85,14 @@ func (j Job) Cancel() (Event, error) {
 		return Event{}, ErrInvalidTransition // can't cancel an already finished job
 	}
 	return Event{JobId: j.ID, Type: JOBCanceled}, nil
+}
+
+// Fail transitions a non-terminal job to failed, recording why in the event message.
+func (j Job) Fail(reason string) (Event, error) {
+	if j.isTerminal() { // the invariant
+		return Event{}, ErrInvalidTransition // can't fail an already finished job
+	}
+	return Event{JobId: j.ID, Type: JobFailed, Message: reason}, nil
 }
 
 // isTerminal reports whether the job has reached a final, immutable status.
