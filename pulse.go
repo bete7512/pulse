@@ -5,11 +5,18 @@ package pulse
 
 import (
 	"context"
+	"time"
 
 	"github.com/bete7512/pulse/gen/pulsev1"
+	"github.com/gofrs/uuid/v5"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
+
+// heartbeatInterval is how often a running handler renews its liveness. It must be
+// comfortably below the server's liveness TTL (≈3×) so a couple of dropped beats
+// don't trip a false recovery.
+const heartbeatInterval = 10 * time.Second
 
 // Client is the SDK handle. Use it to Submit jobs (producer) and/or to register
 // handlers and Run/Start a worker (consumer). It is safe for concurrent use.
@@ -18,6 +25,7 @@ type Client struct {
 	api         pulsev1.PulseServiceClient
 	handlers    map[string]func(Job) error // topic -> raw handler (JobType[T].Handle wraps the typed fn)
 	concurrency int
+	workerID    string // identifies this worker for liveness (heartbeats + fencing)
 }
 
 // Option configures a Client.
@@ -39,11 +47,16 @@ func New(addr string, opts ...Option) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
+	workerID, err := uuid.NewV7()
+	if err != nil {
+		return nil, err
+	}
 	c := &Client{
 		cc:          cc,
 		api:         pulsev1.NewPulseServiceClient(cc),
 		handlers:    make(map[string]func(Job) error),
 		concurrency: 10,
+		workerID:    workerID.String(),
 	}
 	for _, o := range opts {
 		o(c)
@@ -89,7 +102,7 @@ func (c *Client) register(topic string, h func(Job) error) {
 // configured concurrency. It returns as soon as the stream is open; processing runs
 // until ctx is cancelled or the stream fails.
 func (c *Client) Start(ctx context.Context) error {
-	stream, err := c.api.StreamJobs(ctx, &pulsev1.StreamJobsRequest{Topics: c.topics()})
+	stream, err := c.api.StreamJobs(ctx, &pulsev1.StreamJobsRequest{Topics: c.topics(), WorkerId: c.workerID})
 	if err != nil {
 		return err
 	}
@@ -125,12 +138,20 @@ func (c *Client) Run(ctx context.Context) error {
 }
 
 // handle dispatches one assignment to its registered handler and reports the result.
+// While the handler runs, a background ticker heartbeats the job's liveness so the
+// watchdog doesn't reclaim a job that's simply long-running; the beat stops the moment
+// the handler returns.
 func (c *Client) handle(ctx context.Context, a *pulsev1.JobAssignment) {
 	h := c.handlers[a.Topic]
 	if h == nil {
 		c.report(ctx, a.JobId, false, "no handler registered for topic "+a.Topic)
 		return
 	}
+
+	hbCtx, stopBeat := context.WithCancel(ctx)
+	defer stopBeat()
+	go c.heartbeat(hbCtx, a.JobId)
+
 	err := h(Job{
 		ID:      a.JobId,
 		Name:    a.Topic,
@@ -138,14 +159,33 @@ func (c *Client) handle(ctx context.Context, a *pulsev1.JobAssignment) {
 		Payload: a.Payload,
 		ctx:     ctx,
 	})
+	stopBeat() // stop renewing liveness before we report the terminal result
 	c.report(ctx, a.JobId, err == nil, errString(err))
+}
+
+// heartbeat renews the job's liveness every heartbeatInterval until ctx is cancelled
+// (handler finished or worker shutting down). Best-effort: a missed beat just risks
+// an early reap, which the at-least-once + idempotency contract already tolerates.
+func (c *Client) heartbeat(ctx context.Context, jobID string) {
+	t := time.NewTicker(heartbeatInterval)
+	defer t.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+			_, _ = c.api.Heartbeat(ctx, &pulsev1.HeartbeatRequest{JobId: jobID, WorkerId: c.workerID})
+		}
+	}
 }
 
 // report is best-effort: a failed report means the job may be redelivered
 // (at-least-once), which is why handlers should be idempotent.
 func (c *Client) report(ctx context.Context, jobID string, ok bool, errMsg string) {
 	_, _ = c.api.ReportResult(ctx, &pulsev1.ReportResultRequest{
-		JobId: jobID, Success: ok, Error: errMsg,
+		JobId:   jobID,
+		Success: ok,
+		Error:   errMsg,
 	})
 }
 

@@ -7,6 +7,7 @@ service PulseService {
   rpc GetJob      (GetJobRequest)      returns (GetJobResponse);           // client
   rpc StreamJobs  (StreamJobsRequest)  returns (stream StreamJobsResponse);// worker subscribes
   rpc ReportResult(ReportResultRequest) returns (ReportResultResponse);    // worker reports
+  rpc Heartbeat   (HeartbeatRequest)   returns (HeartbeatResponse);        // worker renews its lease
 }
 
 message SubmitJobRequest  {
@@ -33,6 +34,7 @@ message JobView           {
 
 message StreamJobsRequest {
     repeated string topics = 1;
+    string worker_id = 2;
 }
 
 message StreamJobsResponse {
@@ -54,4 +56,13 @@ message ReportResultRequest {
 
 message ReportResultResponse {
 
+}
+
+message HeartbeatRequest {
+    string job_id = 1;
+    string worker_id = 2;
+}
+
+message HeartbeatResponse {
+    bool should_stop = 1; // server may later use this to ask the worker to abort
 }

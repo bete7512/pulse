@@ -260,6 +260,7 @@ func (x *JobView) GetStatus() string {
 type StreamJobsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Topics        []string               `protobuf:"bytes,1,rep,name=topics,proto3" json:"topics,omitempty"`
+	WorkerId      string                 `protobuf:"bytes,2,opt,name=worker_id,json=workerId,proto3" json:"worker_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -299,6 +300,13 @@ func (x *StreamJobsRequest) GetTopics() []string {
 		return x.Topics
 	}
 	return nil
+}
+
+func (x *StreamJobsRequest) GetWorkerId() string {
+	if x != nil {
+		return x.WorkerId
+	}
+	return ""
 }
 
 type StreamJobsResponse struct {
@@ -509,6 +517,102 @@ func (*ReportResultResponse) Descriptor() ([]byte, []int) {
 	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{9}
 }
 
+type HeartbeatRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	JobId         string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
+	WorkerId      string                 `protobuf:"bytes,2,opt,name=worker_id,json=workerId,proto3" json:"worker_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HeartbeatRequest) Reset() {
+	*x = HeartbeatRequest{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HeartbeatRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HeartbeatRequest) ProtoMessage() {}
+
+func (x *HeartbeatRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HeartbeatRequest.ProtoReflect.Descriptor instead.
+func (*HeartbeatRequest) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *HeartbeatRequest) GetJobId() string {
+	if x != nil {
+		return x.JobId
+	}
+	return ""
+}
+
+func (x *HeartbeatRequest) GetWorkerId() string {
+	if x != nil {
+		return x.WorkerId
+	}
+	return ""
+}
+
+type HeartbeatResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ShouldStop    bool                   `protobuf:"varint,1,opt,name=should_stop,json=shouldStop,proto3" json:"should_stop,omitempty"` // server may later use this to ask the worker to abort
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *HeartbeatResponse) Reset() {
+	*x = HeartbeatResponse{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *HeartbeatResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HeartbeatResponse) ProtoMessage() {}
+
+func (x *HeartbeatResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HeartbeatResponse.ProtoReflect.Descriptor instead.
+func (*HeartbeatResponse) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *HeartbeatResponse) GetShouldStop() bool {
+	if x != nil {
+		return x.ShouldStop
+	}
+	return false
+}
+
 var File_pulse_v1_pulse_proto protoreflect.FileDescriptor
 
 const file_pulse_v1_pulse_proto_rawDesc = "" +
@@ -525,9 +629,10 @@ const file_pulse_v1_pulse_proto_rawDesc = "" +
 	"\x03job\x18\x01 \x01(\v2\x11.pulse.v1.JobViewR\x03job\"8\n" +
 	"\aJobView\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status\"+\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\"H\n" +
 	"\x11StreamJobsRequest\x12\x16\n" +
-	"\x06topics\x18\x01 \x03(\tR\x06topics\"M\n" +
+	"\x06topics\x18\x01 \x03(\tR\x06topics\x12\x1b\n" +
+	"\tworker_id\x18\x02 \x01(\tR\bworkerId\"M\n" +
 	"\x12StreamJobsResponse\x127\n" +
 	"\n" +
 	"assignment\x18\x01 \x01(\v2\x17.pulse.v1.JobAssignmentR\n" +
@@ -541,13 +646,20 @@ const file_pulse_v1_pulse_proto_rawDesc = "" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x18\n" +
 	"\asuccess\x18\x02 \x01(\bR\asuccess\x12\x14\n" +
 	"\x05error\x18\x03 \x01(\tR\x05error\"\x16\n" +
-	"\x14ReportResultResponse2\xab\x02\n" +
+	"\x14ReportResultResponse\"F\n" +
+	"\x10HeartbeatRequest\x12\x15\n" +
+	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x1b\n" +
+	"\tworker_id\x18\x02 \x01(\tR\bworkerId\"4\n" +
+	"\x11HeartbeatResponse\x12\x1f\n" +
+	"\vshould_stop\x18\x01 \x01(\bR\n" +
+	"shouldStop2\xf1\x02\n" +
 	"\fPulseService\x12D\n" +
 	"\tSubmitJob\x12\x1a.pulse.v1.SubmitJobRequest\x1a\x1b.pulse.v1.SubmitJobResponse\x12;\n" +
 	"\x06GetJob\x12\x17.pulse.v1.GetJobRequest\x1a\x18.pulse.v1.GetJobResponse\x12I\n" +
 	"\n" +
 	"StreamJobs\x12\x1b.pulse.v1.StreamJobsRequest\x1a\x1c.pulse.v1.StreamJobsResponse0\x01\x12M\n" +
-	"\fReportResult\x12\x1d.pulse.v1.ReportResultRequest\x1a\x1e.pulse.v1.ReportResultResponseB'Z%github.com/bete7512/pulse/gen/pulsev1b\x06proto3"
+	"\fReportResult\x12\x1d.pulse.v1.ReportResultRequest\x1a\x1e.pulse.v1.ReportResultResponse\x12D\n" +
+	"\tHeartbeat\x12\x1a.pulse.v1.HeartbeatRequest\x1a\x1b.pulse.v1.HeartbeatResponseB'Z%github.com/bete7512/pulse/gen/pulsev1b\x06proto3"
 
 var (
 	file_pulse_v1_pulse_proto_rawDescOnce sync.Once
@@ -561,7 +673,7 @@ func file_pulse_v1_pulse_proto_rawDescGZIP() []byte {
 	return file_pulse_v1_pulse_proto_rawDescData
 }
 
-var file_pulse_v1_pulse_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_pulse_v1_pulse_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_pulse_v1_pulse_proto_goTypes = []any{
 	(*SubmitJobRequest)(nil),     // 0: pulse.v1.SubmitJobRequest
 	(*SubmitJobResponse)(nil),    // 1: pulse.v1.SubmitJobResponse
@@ -573,23 +685,27 @@ var file_pulse_v1_pulse_proto_goTypes = []any{
 	(*JobAssignment)(nil),        // 7: pulse.v1.JobAssignment
 	(*ReportResultRequest)(nil),  // 8: pulse.v1.ReportResultRequest
 	(*ReportResultResponse)(nil), // 9: pulse.v1.ReportResultResponse
+	(*HeartbeatRequest)(nil),     // 10: pulse.v1.HeartbeatRequest
+	(*HeartbeatResponse)(nil),    // 11: pulse.v1.HeartbeatResponse
 }
 var file_pulse_v1_pulse_proto_depIdxs = []int32{
-	4, // 0: pulse.v1.GetJobResponse.job:type_name -> pulse.v1.JobView
-	7, // 1: pulse.v1.StreamJobsResponse.assignment:type_name -> pulse.v1.JobAssignment
-	0, // 2: pulse.v1.PulseService.SubmitJob:input_type -> pulse.v1.SubmitJobRequest
-	2, // 3: pulse.v1.PulseService.GetJob:input_type -> pulse.v1.GetJobRequest
-	5, // 4: pulse.v1.PulseService.StreamJobs:input_type -> pulse.v1.StreamJobsRequest
-	8, // 5: pulse.v1.PulseService.ReportResult:input_type -> pulse.v1.ReportResultRequest
-	1, // 6: pulse.v1.PulseService.SubmitJob:output_type -> pulse.v1.SubmitJobResponse
-	3, // 7: pulse.v1.PulseService.GetJob:output_type -> pulse.v1.GetJobResponse
-	6, // 8: pulse.v1.PulseService.StreamJobs:output_type -> pulse.v1.StreamJobsResponse
-	9, // 9: pulse.v1.PulseService.ReportResult:output_type -> pulse.v1.ReportResultResponse
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	4,  // 0: pulse.v1.GetJobResponse.job:type_name -> pulse.v1.JobView
+	7,  // 1: pulse.v1.StreamJobsResponse.assignment:type_name -> pulse.v1.JobAssignment
+	0,  // 2: pulse.v1.PulseService.SubmitJob:input_type -> pulse.v1.SubmitJobRequest
+	2,  // 3: pulse.v1.PulseService.GetJob:input_type -> pulse.v1.GetJobRequest
+	5,  // 4: pulse.v1.PulseService.StreamJobs:input_type -> pulse.v1.StreamJobsRequest
+	8,  // 5: pulse.v1.PulseService.ReportResult:input_type -> pulse.v1.ReportResultRequest
+	10, // 6: pulse.v1.PulseService.Heartbeat:input_type -> pulse.v1.HeartbeatRequest
+	1,  // 7: pulse.v1.PulseService.SubmitJob:output_type -> pulse.v1.SubmitJobResponse
+	3,  // 8: pulse.v1.PulseService.GetJob:output_type -> pulse.v1.GetJobResponse
+	6,  // 9: pulse.v1.PulseService.StreamJobs:output_type -> pulse.v1.StreamJobsResponse
+	9,  // 10: pulse.v1.PulseService.ReportResult:output_type -> pulse.v1.ReportResultResponse
+	11, // 11: pulse.v1.PulseService.Heartbeat:output_type -> pulse.v1.HeartbeatResponse
+	7,  // [7:12] is the sub-list for method output_type
+	2,  // [2:7] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_pulse_v1_pulse_proto_init() }
@@ -603,7 +719,7 @@ func file_pulse_v1_pulse_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pulse_v1_pulse_proto_rawDesc), len(file_pulse_v1_pulse_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

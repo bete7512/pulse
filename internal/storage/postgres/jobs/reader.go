@@ -1,4 +1,4 @@
-package query
+package jobs
 
 import (
 	"context"
@@ -10,23 +10,26 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// JobReader is the read side of the jobs projection.
 type JobReader interface {
 	GetJob(ctx context.Context, jobID string) (*domain.Job, error)
 	ListJobs(ctx context.Context) ([]domain.Job, error)
 }
 
-type PostgresJobReader struct {
+// Store is the Postgres adapter for the jobs read-model table. It serves queries
+// (GetJob/ListJobs) and the projection's writes (LaggingJobs/Upsert) — all the SQL
+// touching the jobs table lives here; the projection loop itself lives in internal/projection.
+type Store struct {
 	pool *pgxpool.Pool
 }
 
-func New(pool *pgxpool.Pool) *PostgresJobReader {
-	return &PostgresJobReader{
-		pool: pool,
-	}
+func New(pool *pgxpool.Pool) *Store {
+	return &Store{pool: pool}
 }
-func (r *PostgresJobReader) GetJob(ctx context.Context, jobID string) (*domain.Job, error) {
+
+func (s *Store) GetJob(ctx context.Context, jobID string) (*domain.Job, error) {
 	var j domain.Job
-	err := r.pool.QueryRow(ctx, `
+	err := s.pool.QueryRow(ctx, `
 		SELECT job_id, status, submitted_at, started_at, completed_at, message
 		FROM jobs WHERE job_id=$1`, jobID).
 		Scan(&j.ID, &j.Status, &j.SubmittedAt, &j.StartedAt, &j.CompletedAt, &j.Message)
@@ -36,8 +39,8 @@ func (r *PostgresJobReader) GetJob(ctx context.Context, jobID string) (*domain.J
 	return &j, err
 }
 
-func (r *PostgresJobReader) ListJobs(ctx context.Context) ([]domain.Job, error) {
-	rows, err := r.pool.Query(ctx, `
+func (s *Store) ListJobs(ctx context.Context) ([]domain.Job, error) {
+	rows, err := s.pool.Query(ctx, `
 		SELECT job_id, status, submitted_at, started_at, completed_at, message
 		FROM jobs ORDER BY submitted_at DESC`)
 	if err != nil {

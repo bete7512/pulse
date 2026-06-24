@@ -14,10 +14,10 @@ import (
 
 	"github.com/bete7512/pulse/db/migrations"
 	"github.com/bete7512/pulse/gen/pulsev1"
-	"github.com/bete7512/pulse/internal/eventstore"
-	"github.com/bete7512/pulse/internal/projection"
-	"github.com/bete7512/pulse/internal/query"
 	"github.com/bete7512/pulse/internal/service"
+	"github.com/bete7512/pulse/internal/storage/postgres/eventstore"
+	"github.com/bete7512/pulse/internal/storage/postgres/jobs"
+	"github.com/bete7512/pulse/internal/storage/postgres/liveness"
 	grpcserver "github.com/bete7512/pulse/internal/transport/grpc"
 	"github.com/bete7512/pulse/pkg/common"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -29,6 +29,14 @@ const (
 	grpcAddr        = ":50051"
 	projectInterval = 500 * time.Millisecond
 	shutdownTimeout = 5 * time.Second
+
+	// liveness/watchdog: a worker renews its liveness via heartbeats while running; if
+	// it expires (TTL passed) the watchdog re-dispatches the job. livenessTTL should be
+	// a few heartbeat intervals (SDK beats every ~10s). orphanGrace is the fallback
+	// for running jobs whose best-effort liveness mark never landed.
+	livenessTTL   = 30 * time.Second
+	orphanGrace   = 2 * time.Minute
+	watchInterval = 10 * time.Second
 )
 
 func main() {
@@ -60,8 +68,9 @@ func run() error {
 	if err = migrationService.Run(ctx, db, []string{"up"}); err != nil {
 		log.Fatalf("failed to run migrate command %v", err)
 	}
-	svc, proj := buildServices(db, logger)
+	svc, proj, wd := buildServices(db, logger)
 	go proj.Run(ctx)
+	go wd.Run(ctx)
 
 	gs, err := serveGRPC(svc, logger)
 	if err != nil {
@@ -81,12 +90,15 @@ func newLogger() *slog.Logger {
 }
 
 // buildServices wires the read/write stack: event store, query reader, projector,
-// and the command/query service over them.
-func buildServices(db *pgxpool.Pool, logger *slog.Logger) (*service.Service, *projection.Projector) {
+// the command/query service, and the watchdog that recovers stuck jobs.
+func buildServices(db *pgxpool.Pool, logger *slog.Logger) (*service.Service, *service.Projector, *service.Watchdog) {
 	store := eventstore.NewPostgresEventStore(db)
-	reader := query.New(db)
-	proj := projection.New(store, db, projectInterval, logger)
-	return service.New(store, reader), proj
+	jobStore := jobs.New(db)
+	live := liveness.NewPostgresStore(db)
+	svc := service.New(store, jobStore, live, livenessTTL)
+	proj := service.NewProjector(svc, projectInterval, logger)
+	wd := service.NewWatchdog(svc, orphanGrace, watchInterval, logger)
+	return svc, proj, wd
 }
 
 // serveGRPC registers the Pulse service and starts serving in the background,

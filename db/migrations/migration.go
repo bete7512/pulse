@@ -62,4 +62,6 @@ func (s *migrationService) registerMigrations() {
 	s.registerMigration_0001CreateEvents()
 	s.registerMigration_0002CreatJobs()
 	s.registerMigration_0003AddEventTopic()
+	s.registerMigration_0004AddEventNextAttemptAt()
+	s.registerMigration_0005CreateLiveness()
 }

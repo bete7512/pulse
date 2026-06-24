@@ -23,6 +23,7 @@ const (
 	PulseService_GetJob_FullMethodName       = "/pulse.v1.PulseService/GetJob"
 	PulseService_StreamJobs_FullMethodName   = "/pulse.v1.PulseService/StreamJobs"
 	PulseService_ReportResult_FullMethodName = "/pulse.v1.PulseService/ReportResult"
+	PulseService_Heartbeat_FullMethodName    = "/pulse.v1.PulseService/Heartbeat"
 )
 
 // PulseServiceClient is the client API for PulseService service.
@@ -33,6 +34,7 @@ type PulseServiceClient interface {
 	GetJob(ctx context.Context, in *GetJobRequest, opts ...grpc.CallOption) (*GetJobResponse, error)
 	StreamJobs(ctx context.Context, in *StreamJobsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamJobsResponse], error)
 	ReportResult(ctx context.Context, in *ReportResultRequest, opts ...grpc.CallOption) (*ReportResultResponse, error)
+	Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*HeartbeatResponse, error)
 }
 
 type pulseServiceClient struct {
@@ -92,6 +94,16 @@ func (c *pulseServiceClient) ReportResult(ctx context.Context, in *ReportResultR
 	return out, nil
 }
 
+func (c *pulseServiceClient) Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*HeartbeatResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(HeartbeatResponse)
+	err := c.cc.Invoke(ctx, PulseService_Heartbeat_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PulseServiceServer is the server API for PulseService service.
 // All implementations must embed UnimplementedPulseServiceServer
 // for forward compatibility.
@@ -100,6 +112,7 @@ type PulseServiceServer interface {
 	GetJob(context.Context, *GetJobRequest) (*GetJobResponse, error)
 	StreamJobs(*StreamJobsRequest, grpc.ServerStreamingServer[StreamJobsResponse]) error
 	ReportResult(context.Context, *ReportResultRequest) (*ReportResultResponse, error)
+	Heartbeat(context.Context, *HeartbeatRequest) (*HeartbeatResponse, error)
 	mustEmbedUnimplementedPulseServiceServer()
 }
 
@@ -121,6 +134,9 @@ func (UnimplementedPulseServiceServer) StreamJobs(*StreamJobsRequest, grpc.Serve
 }
 func (UnimplementedPulseServiceServer) ReportResult(context.Context, *ReportResultRequest) (*ReportResultResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ReportResult not implemented")
+}
+func (UnimplementedPulseServiceServer) Heartbeat(context.Context, *HeartbeatRequest) (*HeartbeatResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Heartbeat not implemented")
 }
 func (UnimplementedPulseServiceServer) mustEmbedUnimplementedPulseServiceServer() {}
 func (UnimplementedPulseServiceServer) testEmbeddedByValue()                      {}
@@ -208,6 +224,24 @@ func _PulseService_ReportResult_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PulseService_Heartbeat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HeartbeatRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PulseServiceServer).Heartbeat(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PulseService_Heartbeat_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PulseServiceServer).Heartbeat(ctx, req.(*HeartbeatRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PulseService_ServiceDesc is the grpc.ServiceDesc for PulseService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -226,6 +260,10 @@ var PulseService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReportResult",
 			Handler:    _PulseService_ReportResult_Handler,
+		},
+		{
+			MethodName: "Heartbeat",
+			Handler:    _PulseService_Heartbeat_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

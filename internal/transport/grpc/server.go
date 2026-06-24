@@ -39,12 +39,12 @@ func (s *Server) StreamJobs(req *pulsev1.StreamJobsRequest, stream pulsev1.Pulse
 				continue
 			}
 			for _, j := range jobs {
-				if err := s.svc.StartJob(ctx, j.ID); err != nil {
+				if err := s.svc.StartJob(ctx, j.ID, req.WorkerId); err != nil {
 					continue
 				}
 				if err := stream.Send(&pulsev1.StreamJobsResponse{
 					Assignment: &pulsev1.JobAssignment{
-						JobId: j.ID, Topic: j.Topic, Payload: j.Payload, Attempt: 1,
+						JobId: j.ID, Topic: j.Topic, Payload: j.Payload, Attempt: int32(j.Attempts + 1),
 					},
 				}); err != nil {
 					return err
@@ -59,4 +59,11 @@ func (s *Server) ReportResult(ctx context.Context, r *pulsev1.ReportResultReques
 		return &pulsev1.ReportResultResponse{}, s.svc.CompleteJob(ctx, r.JobId)
 	}
 	return &pulsev1.ReportResultResponse{}, s.svc.FailJob(ctx, r.JobId, r.Error)
+}
+
+func (s *Server) Heartbeat(ctx context.Context, r *pulsev1.HeartbeatRequest) (*pulsev1.HeartbeatResponse, error) {
+	if err := s.svc.Heartbeat(ctx, r.JobId, r.WorkerId); err != nil {
+		return nil, err
+	}
+	return &pulsev1.HeartbeatResponse{}, nil
 }
