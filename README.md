@@ -74,15 +74,22 @@ See [`examples/`](examples/) for a runnable producer + worker.
 ## Architecture
 
 ```
-   DEVELOPER'S APP            │ gRPC │          PULSE SERVER (internal)
-   ───────────────           │      │          ────────────────────────
-   pulse.Enqueue(...) ───────┼──────┼─► SubmitJob   ─► service ─► event store (Postgres)
-   pulse.Register(...)        │      │
-   p.Run() ──────────────────┼─stream► StreamJobs  ─► poll → claim → stream
-        ◄── job ──────────────┼──────┤
-        run handler LOCALLY    │      │   ┌─ projector  → jobs read model (CQRS)
-        ReportResult ─────────┼──────┼─► ┤  watchdog    → recovers crashed-worker jobs
-        Heartbeat ────────────┼──────┼─► └─ liveness    → heartbeat deadlines
+   YOUR APP — the SDK                              PULSE SERVER — pulsed
+   ┌──────────────────────┐                       ┌─────────────────────────┐
+   │ Enqueue(name, args)  │ ──────  SubmitJob ───► │ append "submitted"      │
+   │                      │                       │                         │
+   │ Register(name, fn)   │ ──────  StreamJobs ──► │ poll → claim            │
+   │ Run()                │ ◄─────  job ────────── │ push to this worker     │
+   │   run fn() LOCALLY    │                       │                         │
+   │   ReportResult       │ ───  ReportResult ───► │ append done / failed    │
+   │   Heartbeat          │ ──────  Heartbeat ───► │ renew liveness          │
+   └──────────────────────┘                       └─────────────────────────┘
+     handlers run in your process            all state is one append-only
+     — only gRPC data crosses the wire       event log  =  the source of truth
+
+   inside the server, two loops read that log:
+     • projector → keeps the jobs read model current     (CQRS)
+     • watchdog  → re-dispatches jobs whose worker died  (via liveness)
 ```
 
 The event store is the single source of truth; everything else (read model, dispatch, recovery)
