@@ -1,6 +1,8 @@
 -include .env
 
-.PHONY: migrate_up migrate_down migrate_status run proto proto-lint generate-mock test
+DOCKER_IMAGE ?= $(DOCKERHUB_USERNAME)/pulse
+
+.PHONY: migrate_up migrate_down migrate_status run proto proto-lint generate-mock test docker-build
 
 generate-mock:
 	@echo "Generating mocks..."
@@ -27,3 +29,6 @@ proto:
 proto-lint:
 	@echo "Linting .proto files..."
 	@buf lint proto
+docker-build:
+	@echo "Building image $(DOCKER_IMAGE):dev ..."
+	@docker build -t $(DOCKER_IMAGE):dev .

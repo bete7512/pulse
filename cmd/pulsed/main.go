@@ -37,6 +37,14 @@ const (
 	watchInterval = 10 * time.Second
 )
 
+// Build metadata, injected at build time via -ldflags "-X main.version=… -X main.commit=…
+// -X main.date=…". Defaults apply for `go run` / un-stamped builds.
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
 	if err := run(); err != nil {
 		log.Fatal(err)
@@ -46,9 +54,9 @@ func main() {
 func run() error {
 	logger := newLogger()
 
-	if err := godotenv.Load(); err != nil {
-		return fmt.Errorf("load .env: %w", err)
-	}
+	// .env is a local-dev convenience; in containers/CI config comes from the real
+	// environment, so a missing file is fine — fall back to whatever env vars are set.
+	_ = godotenv.Load()
 
 	// ctx is cancelled on the first SIGINT/SIGTERM; stop() restores default signal
 	// handling so a second signal force-quits instead of being swallowed.
@@ -75,7 +83,7 @@ func run() error {
 		return err
 	}
 
-	logger.Info("pulse started successfully", "addr", grpcAddr)
+	logger.Info("pulse started successfully", "addr", grpcAddr, "version", version, "commit", commit, "date", date)
 	<-ctx.Done()
 	stop()
 	shutdown(gs, logger)

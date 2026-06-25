@@ -1,0 +1,16 @@
+# VCS / CI / docs — never needed in the build context
+.git
+.gitignore
+.github
+*.md
+docs/
+.dev/
+
+# local config & secrets — must never enter an image
+.env
+.env.*
+
+# editor / local build junk
+.vscode
+.idea
+bin/

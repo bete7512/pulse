@@ -17,10 +17,9 @@ func main() {
 	flag.Parse()
 
 	ctx := context.Background()
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// .env is a local-dev convenience; in containers/CI config comes from the real
+	// environment, so a missing file is fine — fall back to whatever env vars are set.
+	_ = godotenv.Load()
 	dbHost := os.Getenv("DB_HOST")
 
 	db, err := common.InitDbConnection(ctx, dbHost)
