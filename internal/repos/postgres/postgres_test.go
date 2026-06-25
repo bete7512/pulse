@@ -47,3 +47,15 @@ func (s *RepoSuite) SetupTest() {
 }
 
 func bg() context.Context { return context.Background() }
+
+// Fixture job ids. The events/jobs job_id columns are typed uuid (real ids are uuidv7),
+// so fixtures must be syntactically valid UUIDs — not "j"/"a". Stable values keep the
+// assertions readable.
+const (
+	jobA       = "aaaaaaaa-0000-4000-8000-000000000001"
+	jobB       = "bbbbbbbb-0000-4000-8000-000000000002"
+	jobC       = "cccccccc-0000-4000-8000-000000000003"
+	jobJ       = "11111111-0000-4000-8000-000000000001"
+	jobStuck   = "22222222-0000-4000-8000-000000000002"
+	jobMissing = "33333333-0000-4000-8000-000000000003"
+)

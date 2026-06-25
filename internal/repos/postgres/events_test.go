@@ -14,10 +14,10 @@ import (
 func (s *RepoSuite) TestEvent_AppendAssignsSequence() {
 	event := postgres.NewEvent(s.pool)
 	for _, typ := range []domain.EventType{domain.JobSubmitted, domain.JobStarted, domain.JobCompleted} {
-		_, err := event.Append(bg(), domain.Event{JobId: "j", Type: typ, Topic: "t"})
+		_, err := event.Append(bg(), domain.Event{JobId: jobJ, Type: typ, Topic: "t"})
 		s.Require().NoError(err, "Append %s", typ)
 	}
-	events, err := event.LoadEventsForJob(bg(), "j")
+	events, err := event.LoadEventsForJob(bg(), jobJ)
 	s.Require().NoError(err)
 	s.Require().Len(events, 3)
 	s.Equal(int64(1), events[0].Sequence)
@@ -25,12 +25,15 @@ func (s *RepoSuite) TestEvent_AppendAssignsSequence() {
 	s.Equal(int64(3), events[2].Sequence)
 }
 
-// TestEvent_ConcurrentAppend_OneWinner is the claim race against real Postgres: many writers
-// race for the same next sequence; the UNIQUE(job_id, sequence) constraint lets exactly one
-// win and surfaces the rest as ErrSequenceConflict.
-func (s *RepoSuite) TestEvent_ConcurrentAppend_OneWinner() {
+// TestEvent_ConcurrentAppend_NoDuplicateSequences hammers Append concurrently against real
+// Postgres and asserts the guarantee the UNIQUE(job_id, sequence) constraint actually gives:
+// concurrent appends never duplicate a sequence. Racers that read the same MAX collide
+// (ErrSequenceConflict); racers that run after a commit see the new MAX and succeed at the
+// next sequence — so several win, at distinct, gap-free sequences. (The "one claim wins"
+// semantics live a layer up, in service.StartJob's folded invariant, not in raw Append.)
+func (s *RepoSuite) TestEvent_ConcurrentAppend_NoDuplicateSequences() {
 	event := postgres.NewEvent(s.pool)
-	_, err := event.Append(bg(), domain.Event{JobId: "j", Type: domain.JobSubmitted})
+	_, err := event.Append(bg(), domain.Event{JobId: jobJ, Type: domain.JobSubmitted})
 	s.Require().NoError(err) // seq 1
 
 	const racers = 50
@@ -40,7 +43,7 @@ func (s *RepoSuite) TestEvent_ConcurrentAppend_OneWinner() {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			_, err := event.Append(bg(), domain.Event{JobId: "j", Type: domain.JobStarted}) // all want seq 2
+			_, err := event.Append(bg(), domain.Event{JobId: jobJ, Type: domain.JobStarted})
 			switch {
 			case err == nil:
 				atomic.AddInt32(&winners, 1)
@@ -53,21 +56,32 @@ func (s *RepoSuite) TestEvent_ConcurrentAppend_OneWinner() {
 	}
 	wg.Wait()
 
-	s.Equal(int32(1), winners, "exactly one winner")
-	s.Equal(int32(racers-1), conflicts)
+	// Every racer either won or lost to the constraint — none errored otherwise, and at
+	// least one made progress.
+	s.Equal(int32(racers), winners+conflicts)
+	s.GreaterOrEqual(winners, int32(1))
+
+	// The decisive invariant: no sequence was handed out twice. The stored stream is a
+	// gap-free 1..N (N = the initial event + the winners).
+	events, err := event.LoadEventsForJob(bg(), jobJ)
+	s.Require().NoError(err)
+	s.Require().Len(events, int(1+winners))
+	for i, e := range events {
+		s.Equal(int64(i+1), e.Sequence, "sequences must be unique and gap-free")
+	}
 }
 
 func (s *RepoSuite) TestEvent_AppendBatchAtomic() {
 	event := postgres.NewEvent(s.pool)
-	_, err := event.Append(bg(), domain.Event{JobId: "j", Type: domain.JobSubmitted})
+	_, err := event.Append(bg(), domain.Event{JobId: jobJ, Type: domain.JobSubmitted})
 	s.Require().NoError(err)
 	err = event.AppendBatch(bg(), []domain.Event{
-		{JobId: "j", Type: domain.JobFailed, Message: "boom"},
-		{JobId: "j", Type: domain.JobRetried},
+		{JobId: jobJ, Type: domain.JobFailed, Message: "boom"},
+		{JobId: jobJ, Type: domain.JobRetried},
 	})
 	s.Require().NoError(err)
 
-	events, err := event.LoadEventsForJob(bg(), "j")
+	events, err := event.LoadEventsForJob(bg(), jobJ)
 	s.Require().NoError(err)
 	s.Require().Len(events, 3)
 	s.Equal(domain.JobFailed, events[1].Type)
@@ -76,23 +90,27 @@ func (s *RepoSuite) TestEvent_AppendBatchAtomic() {
 
 func (s *RepoSuite) TestEvent_ListEventsByTopics() {
 	event := postgres.NewEvent(s.pool)
-	event.Append(bg(), domain.Event{JobId: "a", Type: domain.JobSubmitted, Topic: "email"})
-	event.Append(bg(), domain.Event{JobId: "b", Type: domain.JobSubmitted, Topic: "sms"})
+	_, err := event.Append(bg(), domain.Event{JobId: jobA, Type: domain.JobSubmitted, Topic: "email"})
+	s.Require().NoError(err)
+	_, err = event.Append(bg(), domain.Event{JobId: jobB, Type: domain.JobSubmitted, Topic: "sms"})
+	s.Require().NoError(err)
 
 	got, err := event.ListEventsByTopics(bg(), []string{"email"})
 	s.Require().NoError(err)
 	s.Require().Len(got, 1)
-	s.Equal("a", got[0].JobId)
+	s.Equal(jobA, got[0].JobId)
 }
 
 func (s *RepoSuite) TestEvent_OrphanedRunning() {
 	event := postgres.NewEvent(s.pool)
 	// a Running job (submitted + started) with NO liveness row.
-	event.Append(bg(), domain.Event{JobId: "stuck", Type: domain.JobSubmitted})
-	event.Append(bg(), domain.Event{JobId: "stuck", Type: domain.JobStarted})
+	_, err := event.Append(bg(), domain.Event{JobId: jobStuck, Type: domain.JobSubmitted})
+	s.Require().NoError(err)
+	_, err = event.Append(bg(), domain.Event{JobId: jobStuck, Type: domain.JobStarted})
+	s.Require().NoError(err)
 
 	// negative grace ⇒ "older than now()+1h" ⇒ any running job qualifies (avoids clock flakiness).
 	ids, err := event.OrphanedRunning(bg(), -time.Hour)
 	s.Require().NoError(err)
-	s.Equal([]string{"stuck"}, ids)
+	s.Equal([]string{jobStuck}, ids)
 }
