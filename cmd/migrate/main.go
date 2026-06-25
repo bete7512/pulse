@@ -27,7 +27,7 @@ func main() {
 	migrationService := migrations.NewMigrationsService(&migrations.Config{})
 	err = migrationService.Run(ctx, db, flag.Args())
 	if err != nil {
-		log.Fatal("failed to run migrate command %v", err)
+		log.Fatalf("failed to run migrate command: %v", err)
 	}
 
 	slog.Info("migrate command completed successfully")

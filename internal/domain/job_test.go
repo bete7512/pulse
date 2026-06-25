@@ -75,6 +75,37 @@ func TestRebuildJob(t *testing.T) {
 			},
 			want: &domain.Job{},
 		},
+		{
+			name: "happy path: submitted→started→completed",
+			input: []domain.Event{
+				{JobId: "j", Type: domain.JobSubmitted, Topic: "send-email", CreatedAt: startingTime},
+				{JobId: "j", Type: domain.JobStarted, CreatedAt: startingTime},
+				{JobId: "j", Type: domain.JobCompleted, CreatedAt: startingTime},
+			},
+			want: &domain.Job{
+				ID: "j", Topic: "send-email", Status: domain.Completed, Attempts: 1,
+				SubmittedAt: startingTime, StartedAt: &startingTime, CompletedAt: &startingTime,
+			},
+		},
+		{
+			name: "retry then dead-letter keeps last failure reason",
+			input: []domain.Event{
+				{JobId: "j", Type: domain.JobSubmitted, CreatedAt: startingTime},
+				{JobId: "j", Type: domain.JobStarted, CreatedAt: startingTime},
+				{JobId: "j", Type: domain.JobFailed, Message: "boom", CreatedAt: startingTime},
+				{JobId: "j", Type: domain.JobRetried, CreatedAt: startingTime},
+				{JobId: "j", Type: domain.JobStarted, CreatedAt: startingTime},
+				{JobId: "j", Type: domain.JobFailed, Message: "again", CreatedAt: startingTime},
+				{JobId: "j", Type: domain.JobRetried, CreatedAt: startingTime},
+				{JobId: "j", Type: domain.JobStarted, CreatedAt: startingTime},
+				{JobId: "j", Type: domain.JobFailed, Message: "final", CreatedAt: startingTime},
+				{JobId: "j", Type: domain.JobDeadLettered, CreatedAt: startingTime},
+			},
+			want: &domain.Job{
+				ID: "j", Status: domain.DeadLettered, Attempts: 3, Message: "final",
+				SubmittedAt: startingTime, StartedAt: &startingTime, CompletedAt: &startingTime,
+			},
+		},
 	}
 	for _, tt := range testcases {
 		t.Run(tt.name, func(t *testing.T) {

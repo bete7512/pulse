@@ -14,10 +14,8 @@ import (
 
 	"github.com/bete7512/pulse/db/migrations"
 	"github.com/bete7512/pulse/gen/pulsev1"
+	"github.com/bete7512/pulse/internal/repos/postgres"
 	"github.com/bete7512/pulse/internal/service"
-	"github.com/bete7512/pulse/internal/storage/postgres/eventstore"
-	"github.com/bete7512/pulse/internal/storage/postgres/jobs"
-	"github.com/bete7512/pulse/internal/storage/postgres/liveness"
 	grpcserver "github.com/bete7512/pulse/internal/transport/grpc"
 	"github.com/bete7512/pulse/pkg/common"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -91,19 +89,19 @@ func newLogger() *slog.Logger {
 
 // buildServices wires the read/write stack: event store, query reader, projector,
 // the command/query service, and the watchdog that recovers stuck jobs.
-func buildServices(db *pgxpool.Pool, logger *slog.Logger) (*service.Service, *service.Projector, *service.Watchdog) {
-	store := eventstore.NewPostgresEventStore(db)
-	jobStore := jobs.New(db)
-	live := liveness.NewPostgresStore(db)
-	svc := service.New(store, jobStore, live, livenessTTL)
-	proj := service.NewProjector(svc, projectInterval, logger)
-	wd := service.NewWatchdog(svc, orphanGrace, watchInterval, logger)
+func buildServices(db *pgxpool.Pool, logger *slog.Logger) (service.JobService, service.ProjectorService, service.WatchdogService) {
+	events := postgres.NewEvent(db)
+	jobStore := postgres.NewJob(db)
+	live := postgres.NewLiveness(db)
+	svc := service.New(events, jobStore, live, livenessTTL)
+	proj := service.NewProjector(events, jobStore, projectInterval, logger)
+	wd := service.NewWatchdog(live, events, svc, orphanGrace, watchInterval, logger)
 	return svc, proj, wd
 }
 
 // serveGRPC registers the Pulse service and starts serving in the background,
 // returning the server so the caller can shut it down.
-func serveGRPC(svc *service.Service, logger *slog.Logger) (*grpc.Server, error) {
+func serveGRPC(svc service.JobService, logger *slog.Logger) (*grpc.Server, error) {
 	lis, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
 		return nil, fmt.Errorf("listen %s: %w", grpcAddr, err)

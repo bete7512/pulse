@@ -1,30 +1,38 @@
 package service
 
+//go:generate go run go.uber.org/mock/mockgen -destination=mocks/projector_mock.go -package=mocks github.com/bete7512/pulse/internal/service ProjectorService
+
 import (
 	"context"
 	"log/slog"
 	"time"
 
 	"github.com/bete7512/pulse/internal/domain"
+	"github.com/bete7512/pulse/internal/repos"
 )
 
-// Projector runs the read-side loop that folds the event log into the jobs read
-// model. It drives the Service's stores directly: find jobs whose events have outrun
-// the projection, re-fold each, and upsert it.
-type Projector struct {
-	svc      *Service
+// ProjectorService runs the read-side loop that folds the event log into the jobs read
+// model: find jobs whose events have outrun the projection, re-fold each, upsert it. The
+// composition root depends on this interface; the loop body is exercised via a test seam.
+type ProjectorService interface {
+	Run(ctx context.Context)
+}
+
+type projectorService struct {
+	events   repos.EventRepo
+	jobs     repos.ProjectionRepo
 	interval time.Duration
 	logger   *slog.Logger
 }
 
-func NewProjector(svc *Service, interval time.Duration, logger *slog.Logger) *Projector {
+func NewProjector(events repos.EventRepo, jobs repos.ProjectionRepo, interval time.Duration, logger *slog.Logger) ProjectorService {
 	if logger == nil {
 		logger = slog.Default()
 	}
-	return &Projector{svc: svc, interval: interval, logger: logger}
+	return &projectorService{events: events, jobs: jobs, interval: interval, logger: logger}
 }
 
-func (p *Projector) Run(ctx context.Context) {
+func (p *projectorService) Run(ctx context.Context) {
 	ticker := time.NewTicker(p.interval)
 	defer ticker.Stop()
 	for {
@@ -39,29 +47,28 @@ func (p *Projector) Run(ctx context.Context) {
 	}
 }
 
-func (p *Projector) catchUp(ctx context.Context) error {
-	ids, err := p.svc.jobStore.LaggingJobs(ctx)
+func (p *projectorService) catchUp(ctx context.Context) error {
+	ids, err := p.jobs.LaggingJobs(ctx)
 	if err != nil {
 		return err
 	}
 	for _, id := range ids {
-		events, err := p.svc.store.LoadEventsForJob(ctx, id)
+		events, err := p.events.LoadEventsForJob(ctx, id)
 		if err != nil {
 			return err
 		}
 		if len(events) == 0 {
 			continue
 		}
-		job := domain.RebuildJob(events) // the canonical fold, doing its real read-side job
-		if err := p.svc.jobStore.Upsert(ctx, job, maxSeq(events)); err != nil {
+		job := domain.RebuildJob(events) // the canonical fold, doing its read-side job
+		if err := p.jobs.Upsert(ctx, job, maxSeq(events)); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// maxSeq returns the highest sequence in a job's event slice. LoadEventsForJob returns
-// events ordered by sequence, but scanning defensively keeps this correct regardless.
+// maxSeq returns the highest sequence in a job's event slice.
 func maxSeq(events []domain.Event) int64 {
 	var max int64
 	for _, e := range events {

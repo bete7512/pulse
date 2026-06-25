@@ -10,10 +10,10 @@ import (
 
 type Server struct {
 	pulsev1.UnimplementedPulseServiceServer
-	svc *service.Service
+	svc service.JobService
 }
 
-func New(svc *service.Service) *Server {
+func New(svc service.JobService) *Server {
 	return &Server{svc: svc}
 }
 

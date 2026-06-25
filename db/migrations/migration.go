@@ -14,7 +14,7 @@ type MigrationService interface {
 	Run(ctx context.Context, dbPool *pgxpool.Pool, args []string) error
 }
 
-type Config struct {}
+type Config struct{}
 type migrationService struct {
 	config *Config
 }

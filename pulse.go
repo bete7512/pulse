@@ -7,9 +7,12 @@ import (
 	"context"
 	"time"
 
+	"crypto/tls"
+
 	"github.com/bete7512/pulse/gen/pulsev1"
 	"github.com/gofrs/uuid/v5"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
@@ -25,7 +28,8 @@ type Client struct {
 	api         pulsev1.PulseServiceClient
 	handlers    map[string]func(Job) error // topic -> raw handler (JobType[T].Handle wraps the typed fn)
 	concurrency int
-	workerID    string // identifies this worker for liveness (heartbeats + fencing)
+	workerID    string                           // identifies this worker for liveness (heartbeats + fencing)
+	creds       credentials.TransportCredentials // transport security; defaults to insecure (local dev)
 }
 
 // Option configures a Client.
@@ -40,27 +44,48 @@ func WithConcurrency(n int) Option {
 	}
 }
 
-// New dials addr and returns a Client. Insecure transport by default (local dev);
-// the same connection serves both the producer and consumer roles.
-func New(addr string, opts ...Option) (*Client, error) {
-	cc, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		return nil, err
+// WithTLS secures the connection using TLS. Pass nil to use the host's default
+// settings and system root CAs (the common case for a server with a public cert);
+// pass a *tls.Config to customise roots, client certs (mTLS), or the server name.
+func WithTLS(cfg *tls.Config) Option {
+	return func(c *Client) {
+		c.creds = credentials.NewTLS(cfg)
 	}
+}
+
+// WithTransportCredentials sets the gRPC transport credentials directly, for callers
+// who need full control over transport security. Overrides the insecure default.
+func WithTransportCredentials(creds credentials.TransportCredentials) Option {
+	return func(c *Client) {
+		if creds != nil {
+			c.creds = creds
+		}
+	}
+}
+
+// New dials addr and returns a Client. Insecure transport by default (local dev);
+// pass WithTLS (or WithTransportCredentials) to secure the connection. The same
+// connection serves both the producer and consumer roles.
+func New(addr string, opts ...Option) (*Client, error) {
 	workerID, err := uuid.NewV7()
 	if err != nil {
 		return nil, err
 	}
 	c := &Client{
-		cc:          cc,
-		api:         pulsev1.NewPulseServiceClient(cc),
 		handlers:    make(map[string]func(Job) error),
 		concurrency: 10,
 		workerID:    workerID.String(),
+		creds:       insecure.NewCredentials(),
 	}
 	for _, o := range opts {
 		o(c)
 	}
+	cc, err := grpc.NewClient(addr, grpc.WithTransportCredentials(c.creds))
+	if err != nil {
+		return nil, err
+	}
+	c.cc = cc
+	c.api = pulsev1.NewPulseServiceClient(cc)
 	return c, nil
 }
 

@@ -1,6 +1,13 @@
 -include .env
 
-.PHONY: migrate_up migrate_down migrate_status run proto proto-lint
+.PHONY: migrate_up migrate_down migrate_status run proto proto-lint generate-mock test
+
+generate-mock:
+	@echo "Generating mocks..."
+	@go generate ./...
+test:
+	@echo "Running tests..."
+	@go test -race ./...
 
 migrate_up:
 	@echo "Running database migrations..."
