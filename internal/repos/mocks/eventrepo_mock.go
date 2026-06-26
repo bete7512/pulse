@@ -71,6 +71,21 @@ func (mr *MockEventRepoMockRecorder) AppendBatch(ctx, events any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AppendBatch", reflect.TypeOf((*MockEventRepo)(nil).AppendBatch), ctx, events)
 }
 
+// FiresBySchedule mocks base method.
+func (m *MockEventRepo) FiresBySchedule(ctx context.Context, scheduleID string) ([]domain.Event, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FiresBySchedule", ctx, scheduleID)
+	ret0, _ := ret[0].([]domain.Event)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FiresBySchedule indicates an expected call of FiresBySchedule.
+func (mr *MockEventRepoMockRecorder) FiresBySchedule(ctx, scheduleID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FiresBySchedule", reflect.TypeOf((*MockEventRepo)(nil).FiresBySchedule), ctx, scheduleID)
+}
+
 // ListEventsByTopics mocks base method.
 func (m *MockEventRepo) ListEventsByTopics(ctx context.Context, topics []string) ([]domain.Event, error) {
 	m.ctrl.T.Helper()

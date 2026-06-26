@@ -98,21 +98,6 @@ func (mr *MockJobServiceMockRecorder) GetJob(ctx, jobID any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetJob", reflect.TypeOf((*MockJobService)(nil).GetJob), ctx, jobID)
 }
 
-// GetJobForDispatch mocks base method.
-func (m *MockJobService) GetJobForDispatch(ctx context.Context, jobID string) (*domain.Job, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetJobForDispatch", ctx, jobID)
-	ret0, _ := ret[0].(*domain.Job)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetJobForDispatch indicates an expected call of GetJobForDispatch.
-func (mr *MockJobServiceMockRecorder) GetJobForDispatch(ctx, jobID any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetJobForDispatch", reflect.TypeOf((*MockJobService)(nil).GetJobForDispatch), ctx, jobID)
-}
-
 // Heartbeat mocks base method.
 func (m *MockJobService) Heartbeat(ctx context.Context, jobID, workerID string) error {
 	m.ctrl.T.Helper()
@@ -172,16 +157,16 @@ func (mr *MockJobServiceMockRecorder) StartJob(ctx, jobID, workerID any) *gomock
 }
 
 // Submit mocks base method.
-func (m *MockJobService) Submit(ctx context.Context, topic string, payload []byte) (string, error) {
+func (m *MockJobService) Submit(ctx context.Context, topic string, payload []byte, priority int) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Submit", ctx, topic, payload)
+	ret := m.ctrl.Call(m, "Submit", ctx, topic, payload, priority)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Submit indicates an expected call of Submit.
-func (mr *MockJobServiceMockRecorder) Submit(ctx, topic, payload any) *gomock.Call {
+func (mr *MockJobServiceMockRecorder) Submit(ctx, topic, payload, priority any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Submit", reflect.TypeOf((*MockJobService)(nil).Submit), ctx, topic, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Submit", reflect.TypeOf((*MockJobService)(nil).Submit), ctx, topic, payload, priority)
 }

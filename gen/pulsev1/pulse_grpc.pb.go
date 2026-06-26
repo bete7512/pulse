@@ -19,11 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PulseService_SubmitJob_FullMethodName    = "/pulse.v1.PulseService/SubmitJob"
-	PulseService_GetJob_FullMethodName       = "/pulse.v1.PulseService/GetJob"
-	PulseService_StreamJobs_FullMethodName   = "/pulse.v1.PulseService/StreamJobs"
-	PulseService_ReportResult_FullMethodName = "/pulse.v1.PulseService/ReportResult"
-	PulseService_Heartbeat_FullMethodName    = "/pulse.v1.PulseService/Heartbeat"
+	PulseService_SubmitJob_FullMethodName         = "/pulse.v1.PulseService/SubmitJob"
+	PulseService_GetJob_FullMethodName            = "/pulse.v1.PulseService/GetJob"
+	PulseService_StreamJobs_FullMethodName        = "/pulse.v1.PulseService/StreamJobs"
+	PulseService_ReportResult_FullMethodName      = "/pulse.v1.PulseService/ReportResult"
+	PulseService_Heartbeat_FullMethodName         = "/pulse.v1.PulseService/Heartbeat"
+	PulseService_CreateSchedule_FullMethodName    = "/pulse.v1.PulseService/CreateSchedule"
+	PulseService_PauseSchedule_FullMethodName     = "/pulse.v1.PulseService/PauseSchedule"
+	PulseService_ResumeSchedule_FullMethodName    = "/pulse.v1.PulseService/ResumeSchedule"
+	PulseService_DeleteSchedule_FullMethodName    = "/pulse.v1.PulseService/DeleteSchedule"
+	PulseService_ListSchedules_FullMethodName     = "/pulse.v1.PulseService/ListSchedules"
+	PulseService_ListScheduleJobs_FullMethodName  = "/pulse.v1.PulseService/ListScheduleJobs"
+	PulseService_ListScheduleFires_FullMethodName = "/pulse.v1.PulseService/ListScheduleFires"
 )
 
 // PulseServiceClient is the client API for PulseService service.
@@ -35,6 +42,14 @@ type PulseServiceClient interface {
 	StreamJobs(ctx context.Context, in *StreamJobsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamJobsResponse], error)
 	ReportResult(ctx context.Context, in *ReportResultRequest, opts ...grpc.CallOption) (*ReportResultResponse, error)
 	Heartbeat(ctx context.Context, in *HeartbeatRequest, opts ...grpc.CallOption) (*HeartbeatResponse, error)
+	// scheduling (client)
+	CreateSchedule(ctx context.Context, in *CreateScheduleRequest, opts ...grpc.CallOption) (*CreateScheduleResponse, error)
+	PauseSchedule(ctx context.Context, in *PauseScheduleRequest, opts ...grpc.CallOption) (*PauseScheduleResponse, error)
+	ResumeSchedule(ctx context.Context, in *ResumeScheduleRequest, opts ...grpc.CallOption) (*ResumeScheduleResponse, error)
+	DeleteSchedule(ctx context.Context, in *DeleteScheduleRequest, opts ...grpc.CallOption) (*DeleteScheduleResponse, error)
+	ListSchedules(ctx context.Context, in *ListSchedulesRequest, opts ...grpc.CallOption) (*ListSchedulesResponse, error)
+	ListScheduleJobs(ctx context.Context, in *ListScheduleJobsRequest, opts ...grpc.CallOption) (*ListScheduleJobsResponse, error)
+	ListScheduleFires(ctx context.Context, in *ListScheduleFiresRequest, opts ...grpc.CallOption) (*ListScheduleFiresResponse, error)
 }
 
 type pulseServiceClient struct {
@@ -104,6 +119,76 @@ func (c *pulseServiceClient) Heartbeat(ctx context.Context, in *HeartbeatRequest
 	return out, nil
 }
 
+func (c *pulseServiceClient) CreateSchedule(ctx context.Context, in *CreateScheduleRequest, opts ...grpc.CallOption) (*CreateScheduleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateScheduleResponse)
+	err := c.cc.Invoke(ctx, PulseService_CreateSchedule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pulseServiceClient) PauseSchedule(ctx context.Context, in *PauseScheduleRequest, opts ...grpc.CallOption) (*PauseScheduleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PauseScheduleResponse)
+	err := c.cc.Invoke(ctx, PulseService_PauseSchedule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pulseServiceClient) ResumeSchedule(ctx context.Context, in *ResumeScheduleRequest, opts ...grpc.CallOption) (*ResumeScheduleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResumeScheduleResponse)
+	err := c.cc.Invoke(ctx, PulseService_ResumeSchedule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pulseServiceClient) DeleteSchedule(ctx context.Context, in *DeleteScheduleRequest, opts ...grpc.CallOption) (*DeleteScheduleResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteScheduleResponse)
+	err := c.cc.Invoke(ctx, PulseService_DeleteSchedule_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pulseServiceClient) ListSchedules(ctx context.Context, in *ListSchedulesRequest, opts ...grpc.CallOption) (*ListSchedulesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListSchedulesResponse)
+	err := c.cc.Invoke(ctx, PulseService_ListSchedules_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pulseServiceClient) ListScheduleJobs(ctx context.Context, in *ListScheduleJobsRequest, opts ...grpc.CallOption) (*ListScheduleJobsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListScheduleJobsResponse)
+	err := c.cc.Invoke(ctx, PulseService_ListScheduleJobs_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pulseServiceClient) ListScheduleFires(ctx context.Context, in *ListScheduleFiresRequest, opts ...grpc.CallOption) (*ListScheduleFiresResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListScheduleFiresResponse)
+	err := c.cc.Invoke(ctx, PulseService_ListScheduleFires_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PulseServiceServer is the server API for PulseService service.
 // All implementations must embed UnimplementedPulseServiceServer
 // for forward compatibility.
@@ -113,6 +198,14 @@ type PulseServiceServer interface {
 	StreamJobs(*StreamJobsRequest, grpc.ServerStreamingServer[StreamJobsResponse]) error
 	ReportResult(context.Context, *ReportResultRequest) (*ReportResultResponse, error)
 	Heartbeat(context.Context, *HeartbeatRequest) (*HeartbeatResponse, error)
+	// scheduling (client)
+	CreateSchedule(context.Context, *CreateScheduleRequest) (*CreateScheduleResponse, error)
+	PauseSchedule(context.Context, *PauseScheduleRequest) (*PauseScheduleResponse, error)
+	ResumeSchedule(context.Context, *ResumeScheduleRequest) (*ResumeScheduleResponse, error)
+	DeleteSchedule(context.Context, *DeleteScheduleRequest) (*DeleteScheduleResponse, error)
+	ListSchedules(context.Context, *ListSchedulesRequest) (*ListSchedulesResponse, error)
+	ListScheduleJobs(context.Context, *ListScheduleJobsRequest) (*ListScheduleJobsResponse, error)
+	ListScheduleFires(context.Context, *ListScheduleFiresRequest) (*ListScheduleFiresResponse, error)
 	mustEmbedUnimplementedPulseServiceServer()
 }
 
@@ -137,6 +230,27 @@ func (UnimplementedPulseServiceServer) ReportResult(context.Context, *ReportResu
 }
 func (UnimplementedPulseServiceServer) Heartbeat(context.Context, *HeartbeatRequest) (*HeartbeatResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Heartbeat not implemented")
+}
+func (UnimplementedPulseServiceServer) CreateSchedule(context.Context, *CreateScheduleRequest) (*CreateScheduleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateSchedule not implemented")
+}
+func (UnimplementedPulseServiceServer) PauseSchedule(context.Context, *PauseScheduleRequest) (*PauseScheduleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PauseSchedule not implemented")
+}
+func (UnimplementedPulseServiceServer) ResumeSchedule(context.Context, *ResumeScheduleRequest) (*ResumeScheduleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ResumeSchedule not implemented")
+}
+func (UnimplementedPulseServiceServer) DeleteSchedule(context.Context, *DeleteScheduleRequest) (*DeleteScheduleResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteSchedule not implemented")
+}
+func (UnimplementedPulseServiceServer) ListSchedules(context.Context, *ListSchedulesRequest) (*ListSchedulesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListSchedules not implemented")
+}
+func (UnimplementedPulseServiceServer) ListScheduleJobs(context.Context, *ListScheduleJobsRequest) (*ListScheduleJobsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListScheduleJobs not implemented")
+}
+func (UnimplementedPulseServiceServer) ListScheduleFires(context.Context, *ListScheduleFiresRequest) (*ListScheduleFiresResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListScheduleFires not implemented")
 }
 func (UnimplementedPulseServiceServer) mustEmbedUnimplementedPulseServiceServer() {}
 func (UnimplementedPulseServiceServer) testEmbeddedByValue()                      {}
@@ -242,6 +356,132 @@ func _PulseService_Heartbeat_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PulseService_CreateSchedule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateScheduleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PulseServiceServer).CreateSchedule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PulseService_CreateSchedule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PulseServiceServer).CreateSchedule(ctx, req.(*CreateScheduleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PulseService_PauseSchedule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PauseScheduleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PulseServiceServer).PauseSchedule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PulseService_PauseSchedule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PulseServiceServer).PauseSchedule(ctx, req.(*PauseScheduleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PulseService_ResumeSchedule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResumeScheduleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PulseServiceServer).ResumeSchedule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PulseService_ResumeSchedule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PulseServiceServer).ResumeSchedule(ctx, req.(*ResumeScheduleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PulseService_DeleteSchedule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteScheduleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PulseServiceServer).DeleteSchedule(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PulseService_DeleteSchedule_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PulseServiceServer).DeleteSchedule(ctx, req.(*DeleteScheduleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PulseService_ListSchedules_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSchedulesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PulseServiceServer).ListSchedules(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PulseService_ListSchedules_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PulseServiceServer).ListSchedules(ctx, req.(*ListSchedulesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PulseService_ListScheduleJobs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListScheduleJobsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PulseServiceServer).ListScheduleJobs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PulseService_ListScheduleJobs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PulseServiceServer).ListScheduleJobs(ctx, req.(*ListScheduleJobsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PulseService_ListScheduleFires_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListScheduleFiresRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PulseServiceServer).ListScheduleFires(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PulseService_ListScheduleFires_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PulseServiceServer).ListScheduleFires(ctx, req.(*ListScheduleFiresRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PulseService_ServiceDesc is the grpc.ServiceDesc for PulseService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -264,6 +504,34 @@ var PulseService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Heartbeat",
 			Handler:    _PulseService_Heartbeat_Handler,
+		},
+		{
+			MethodName: "CreateSchedule",
+			Handler:    _PulseService_CreateSchedule_Handler,
+		},
+		{
+			MethodName: "PauseSchedule",
+			Handler:    _PulseService_PauseSchedule_Handler,
+		},
+		{
+			MethodName: "ResumeSchedule",
+			Handler:    _PulseService_ResumeSchedule_Handler,
+		},
+		{
+			MethodName: "DeleteSchedule",
+			Handler:    _PulseService_DeleteSchedule_Handler,
+		},
+		{
+			MethodName: "ListSchedules",
+			Handler:    _PulseService_ListSchedules_Handler,
+		},
+		{
+			MethodName: "ListScheduleJobs",
+			Handler:    _PulseService_ListScheduleJobs_Handler,
+		},
+		{
+			MethodName: "ListScheduleFires",
+			Handler:    _PulseService_ListScheduleFires_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

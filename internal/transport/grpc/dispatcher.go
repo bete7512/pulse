@@ -68,9 +68,10 @@ func (d *dispatcher) dispatchReady(ctx context.Context, topics []string, workerI
 // the job is folded before the claim, and the worker sees the attempt number it will run.
 func assignmentFrom(j domain.Job) *pulsev1.JobAssignment {
 	return &pulsev1.JobAssignment{
-		JobId:   j.ID,
-		Topic:   j.Topic,
-		Payload: j.Payload,
-		Attempt: int32(j.Attempts + 1),
+		JobId:    j.ID,
+		Topic:    j.Topic,
+		Payload:  j.Payload,
+		Attempt:  int32(j.Attempts + 1),
+		Priority: int32(j.Priority),
 	}
 }

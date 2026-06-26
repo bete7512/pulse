@@ -9,6 +9,8 @@ package pulsev1
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -25,6 +27,7 @@ type SubmitJobRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Topic         string                 `protobuf:"bytes,1,opt,name=topic,proto3" json:"topic,omitempty"`
 	Payload       []byte                 `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
+	Priority      int32                  `protobuf:"varint,3,opt,name=priority,proto3" json:"priority,omitempty"` // dispatch priority; higher runs first, default 0
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -71,6 +74,13 @@ func (x *SubmitJobRequest) GetPayload() []byte {
 		return x.Payload
 	}
 	return nil
+}
+
+func (x *SubmitJobRequest) GetPriority() int32 {
+	if x != nil {
+		return x.Priority
+	}
+	return 0
 }
 
 type SubmitJobResponse struct {
@@ -359,6 +369,7 @@ type JobAssignment struct {
 	Topic         string                 `protobuf:"bytes,2,opt,name=topic,proto3" json:"topic,omitempty"`
 	Payload       []byte                 `protobuf:"bytes,3,opt,name=payload,proto3" json:"payload,omitempty"`
 	Attempt       int32                  `protobuf:"varint,4,opt,name=attempt,proto3" json:"attempt,omitempty"`
+	Priority      int32                  `protobuf:"varint,5,opt,name=priority,proto3" json:"priority,omitempty"` // the job's dispatch priority (informational for the worker)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -417,6 +428,13 @@ func (x *JobAssignment) GetPayload() []byte {
 func (x *JobAssignment) GetAttempt() int32 {
 	if x != nil {
 		return x.Attempt
+	}
+	return 0
+}
+
+func (x *JobAssignment) GetPriority() int32 {
+	if x != nil {
+		return x.Priority
 	}
 	return 0
 }
@@ -613,14 +631,821 @@ func (x *HeartbeatResponse) GetShouldStop() bool {
 	return false
 }
 
+type CreateScheduleRequest struct {
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Topic   string                 `protobuf:"bytes,1,opt,name=topic,proto3" json:"topic,omitempty"`
+	Payload []byte                 `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
+	// Types that are valid to be assigned to Spec:
+	//
+	//	*CreateScheduleRequest_At
+	//	*CreateScheduleRequest_Every
+	//	*CreateScheduleRequest_Cron
+	Spec          isCreateScheduleRequest_Spec `protobuf_oneof:"spec"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateScheduleRequest) Reset() {
+	*x = CreateScheduleRequest{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateScheduleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateScheduleRequest) ProtoMessage() {}
+
+func (x *CreateScheduleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateScheduleRequest.ProtoReflect.Descriptor instead.
+func (*CreateScheduleRequest) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *CreateScheduleRequest) GetTopic() string {
+	if x != nil {
+		return x.Topic
+	}
+	return ""
+}
+
+func (x *CreateScheduleRequest) GetPayload() []byte {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+func (x *CreateScheduleRequest) GetSpec() isCreateScheduleRequest_Spec {
+	if x != nil {
+		return x.Spec
+	}
+	return nil
+}
+
+func (x *CreateScheduleRequest) GetAt() *timestamppb.Timestamp {
+	if x != nil {
+		if x, ok := x.Spec.(*CreateScheduleRequest_At); ok {
+			return x.At
+		}
+	}
+	return nil
+}
+
+func (x *CreateScheduleRequest) GetEvery() *durationpb.Duration {
+	if x != nil {
+		if x, ok := x.Spec.(*CreateScheduleRequest_Every); ok {
+			return x.Every
+		}
+	}
+	return nil
+}
+
+func (x *CreateScheduleRequest) GetCron() string {
+	if x != nil {
+		if x, ok := x.Spec.(*CreateScheduleRequest_Cron); ok {
+			return x.Cron
+		}
+	}
+	return ""
+}
+
+type isCreateScheduleRequest_Spec interface {
+	isCreateScheduleRequest_Spec()
+}
+
+type CreateScheduleRequest_At struct {
+	At *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=at,proto3,oneof"` // run once at this time
+}
+
+type CreateScheduleRequest_Every struct {
+	Every *durationpb.Duration `protobuf:"bytes,4,opt,name=every,proto3,oneof"` // run every interval
+}
+
+type CreateScheduleRequest_Cron struct {
+	Cron string `protobuf:"bytes,5,opt,name=cron,proto3,oneof"` // run on this cron expression
+}
+
+func (*CreateScheduleRequest_At) isCreateScheduleRequest_Spec() {}
+
+func (*CreateScheduleRequest_Every) isCreateScheduleRequest_Spec() {}
+
+func (*CreateScheduleRequest_Cron) isCreateScheduleRequest_Spec() {}
+
+type CreateScheduleResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ScheduleId    string                 `protobuf:"bytes,1,opt,name=schedule_id,json=scheduleId,proto3" json:"schedule_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateScheduleResponse) Reset() {
+	*x = CreateScheduleResponse{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateScheduleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateScheduleResponse) ProtoMessage() {}
+
+func (x *CreateScheduleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateScheduleResponse.ProtoReflect.Descriptor instead.
+func (*CreateScheduleResponse) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *CreateScheduleResponse) GetScheduleId() string {
+	if x != nil {
+		return x.ScheduleId
+	}
+	return ""
+}
+
+type PauseScheduleRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ScheduleId    string                 `protobuf:"bytes,1,opt,name=schedule_id,json=scheduleId,proto3" json:"schedule_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PauseScheduleRequest) Reset() {
+	*x = PauseScheduleRequest{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PauseScheduleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PauseScheduleRequest) ProtoMessage() {}
+
+func (x *PauseScheduleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PauseScheduleRequest.ProtoReflect.Descriptor instead.
+func (*PauseScheduleRequest) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *PauseScheduleRequest) GetScheduleId() string {
+	if x != nil {
+		return x.ScheduleId
+	}
+	return ""
+}
+
+type PauseScheduleResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PauseScheduleResponse) Reset() {
+	*x = PauseScheduleResponse{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PauseScheduleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PauseScheduleResponse) ProtoMessage() {}
+
+func (x *PauseScheduleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PauseScheduleResponse.ProtoReflect.Descriptor instead.
+func (*PauseScheduleResponse) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{15}
+}
+
+type ResumeScheduleRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ScheduleId    string                 `protobuf:"bytes,1,opt,name=schedule_id,json=scheduleId,proto3" json:"schedule_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResumeScheduleRequest) Reset() {
+	*x = ResumeScheduleRequest{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResumeScheduleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResumeScheduleRequest) ProtoMessage() {}
+
+func (x *ResumeScheduleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResumeScheduleRequest.ProtoReflect.Descriptor instead.
+func (*ResumeScheduleRequest) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ResumeScheduleRequest) GetScheduleId() string {
+	if x != nil {
+		return x.ScheduleId
+	}
+	return ""
+}
+
+type ResumeScheduleResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResumeScheduleResponse) Reset() {
+	*x = ResumeScheduleResponse{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResumeScheduleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResumeScheduleResponse) ProtoMessage() {}
+
+func (x *ResumeScheduleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResumeScheduleResponse.ProtoReflect.Descriptor instead.
+func (*ResumeScheduleResponse) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{17}
+}
+
+type DeleteScheduleRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ScheduleId    string                 `protobuf:"bytes,1,opt,name=schedule_id,json=scheduleId,proto3" json:"schedule_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteScheduleRequest) Reset() {
+	*x = DeleteScheduleRequest{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteScheduleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteScheduleRequest) ProtoMessage() {}
+
+func (x *DeleteScheduleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteScheduleRequest.ProtoReflect.Descriptor instead.
+func (*DeleteScheduleRequest) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *DeleteScheduleRequest) GetScheduleId() string {
+	if x != nil {
+		return x.ScheduleId
+	}
+	return ""
+}
+
+type DeleteScheduleResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteScheduleResponse) Reset() {
+	*x = DeleteScheduleResponse{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteScheduleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteScheduleResponse) ProtoMessage() {}
+
+func (x *DeleteScheduleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteScheduleResponse.ProtoReflect.Descriptor instead.
+func (*DeleteScheduleResponse) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{19}
+}
+
+type ScheduleView struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ScheduleId    string                 `protobuf:"bytes,1,opt,name=schedule_id,json=scheduleId,proto3" json:"schedule_id,omitempty"`
+	Topic         string                 `protobuf:"bytes,2,opt,name=topic,proto3" json:"topic,omitempty"`
+	Kind          string                 `protobuf:"bytes,3,opt,name=kind,proto3" json:"kind,omitempty"` // once | interval | cron
+	Cron          string                 `protobuf:"bytes,4,opt,name=cron,proto3" json:"cron,omitempty"`
+	Every         *durationpb.Duration   `protobuf:"bytes,5,opt,name=every,proto3" json:"every,omitempty"`
+	NextRunAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=next_run_at,json=nextRunAt,proto3" json:"next_run_at,omitempty"`
+	LastRunAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=last_run_at,json=lastRunAt,proto3" json:"last_run_at,omitempty"`
+	Paused        bool                   `protobuf:"varint,8,opt,name=paused,proto3" json:"paused,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ScheduleView) Reset() {
+	*x = ScheduleView{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ScheduleView) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ScheduleView) ProtoMessage() {}
+
+func (x *ScheduleView) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ScheduleView.ProtoReflect.Descriptor instead.
+func (*ScheduleView) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ScheduleView) GetScheduleId() string {
+	if x != nil {
+		return x.ScheduleId
+	}
+	return ""
+}
+
+func (x *ScheduleView) GetTopic() string {
+	if x != nil {
+		return x.Topic
+	}
+	return ""
+}
+
+func (x *ScheduleView) GetKind() string {
+	if x != nil {
+		return x.Kind
+	}
+	return ""
+}
+
+func (x *ScheduleView) GetCron() string {
+	if x != nil {
+		return x.Cron
+	}
+	return ""
+}
+
+func (x *ScheduleView) GetEvery() *durationpb.Duration {
+	if x != nil {
+		return x.Every
+	}
+	return nil
+}
+
+func (x *ScheduleView) GetNextRunAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.NextRunAt
+	}
+	return nil
+}
+
+func (x *ScheduleView) GetLastRunAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.LastRunAt
+	}
+	return nil
+}
+
+func (x *ScheduleView) GetPaused() bool {
+	if x != nil {
+		return x.Paused
+	}
+	return false
+}
+
+type ListSchedulesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSchedulesRequest) Reset() {
+	*x = ListSchedulesRequest{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSchedulesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSchedulesRequest) ProtoMessage() {}
+
+func (x *ListSchedulesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSchedulesRequest.ProtoReflect.Descriptor instead.
+func (*ListSchedulesRequest) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{21}
+}
+
+type ListSchedulesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Schedules     []*ScheduleView        `protobuf:"bytes,1,rep,name=schedules,proto3" json:"schedules,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListSchedulesResponse) Reset() {
+	*x = ListSchedulesResponse{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListSchedulesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListSchedulesResponse) ProtoMessage() {}
+
+func (x *ListSchedulesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListSchedulesResponse.ProtoReflect.Descriptor instead.
+func (*ListSchedulesResponse) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *ListSchedulesResponse) GetSchedules() []*ScheduleView {
+	if x != nil {
+		return x.Schedules
+	}
+	return nil
+}
+
+type ListScheduleJobsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ScheduleId    string                 `protobuf:"bytes,1,opt,name=schedule_id,json=scheduleId,proto3" json:"schedule_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListScheduleJobsRequest) Reset() {
+	*x = ListScheduleJobsRequest{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListScheduleJobsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListScheduleJobsRequest) ProtoMessage() {}
+
+func (x *ListScheduleJobsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListScheduleJobsRequest.ProtoReflect.Descriptor instead.
+func (*ListScheduleJobsRequest) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *ListScheduleJobsRequest) GetScheduleId() string {
+	if x != nil {
+		return x.ScheduleId
+	}
+	return ""
+}
+
+type ListScheduleJobsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Jobs          []*JobView             `protobuf:"bytes,1,rep,name=jobs,proto3" json:"jobs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListScheduleJobsResponse) Reset() {
+	*x = ListScheduleJobsResponse{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListScheduleJobsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListScheduleJobsResponse) ProtoMessage() {}
+
+func (x *ListScheduleJobsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListScheduleJobsResponse.ProtoReflect.Descriptor instead.
+func (*ListScheduleJobsResponse) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *ListScheduleJobsResponse) GetJobs() []*JobView {
+	if x != nil {
+		return x.Jobs
+	}
+	return nil
+}
+
+type ScheduleFire struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	JobId         string                 `protobuf:"bytes,1,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`
+	FiredAt       *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=fired_at,json=firedAt,proto3" json:"fired_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ScheduleFire) Reset() {
+	*x = ScheduleFire{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ScheduleFire) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ScheduleFire) ProtoMessage() {}
+
+func (x *ScheduleFire) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ScheduleFire.ProtoReflect.Descriptor instead.
+func (*ScheduleFire) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *ScheduleFire) GetJobId() string {
+	if x != nil {
+		return x.JobId
+	}
+	return ""
+}
+
+func (x *ScheduleFire) GetFiredAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FiredAt
+	}
+	return nil
+}
+
+type ListScheduleFiresRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ScheduleId    string                 `protobuf:"bytes,1,opt,name=schedule_id,json=scheduleId,proto3" json:"schedule_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListScheduleFiresRequest) Reset() {
+	*x = ListScheduleFiresRequest{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListScheduleFiresRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListScheduleFiresRequest) ProtoMessage() {}
+
+func (x *ListScheduleFiresRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListScheduleFiresRequest.ProtoReflect.Descriptor instead.
+func (*ListScheduleFiresRequest) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *ListScheduleFiresRequest) GetScheduleId() string {
+	if x != nil {
+		return x.ScheduleId
+	}
+	return ""
+}
+
+type ListScheduleFiresResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Fires         []*ScheduleFire        `protobuf:"bytes,1,rep,name=fires,proto3" json:"fires,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListScheduleFiresResponse) Reset() {
+	*x = ListScheduleFiresResponse{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListScheduleFiresResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListScheduleFiresResponse) ProtoMessage() {}
+
+func (x *ListScheduleFiresResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListScheduleFiresResponse.ProtoReflect.Descriptor instead.
+func (*ListScheduleFiresResponse) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *ListScheduleFiresResponse) GetFires() []*ScheduleFire {
+	if x != nil {
+		return x.Fires
+	}
+	return nil
+}
+
 var File_pulse_v1_pulse_proto protoreflect.FileDescriptor
 
 const file_pulse_v1_pulse_proto_rawDesc = "" +
 	"\n" +
-	"\x14pulse/v1/pulse.proto\x12\bpulse.v1\"B\n" +
+	"\x14pulse/v1/pulse.proto\x12\bpulse.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\"^\n" +
 	"\x10SubmitJobRequest\x12\x14\n" +
 	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x18\n" +
-	"\apayload\x18\x02 \x01(\fR\apayload\"*\n" +
+	"\apayload\x18\x02 \x01(\fR\apayload\x12\x1a\n" +
+	"\bpriority\x18\x03 \x01(\x05R\bpriority\"*\n" +
 	"\x11SubmitJobResponse\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\"&\n" +
 	"\rGetJobRequest\x12\x15\n" +
@@ -636,12 +1461,13 @@ const file_pulse_v1_pulse_proto_rawDesc = "" +
 	"\x12StreamJobsResponse\x127\n" +
 	"\n" +
 	"assignment\x18\x01 \x01(\v2\x17.pulse.v1.JobAssignmentR\n" +
-	"assignment\"p\n" +
+	"assignment\"\x8c\x01\n" +
 	"\rJobAssignment\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x14\n" +
 	"\x05topic\x18\x02 \x01(\tR\x05topic\x12\x18\n" +
 	"\apayload\x18\x03 \x01(\fR\apayload\x12\x18\n" +
-	"\aattempt\x18\x04 \x01(\x05R\aattempt\"\\\n" +
+	"\aattempt\x18\x04 \x01(\x05R\aattempt\x12\x1a\n" +
+	"\bpriority\x18\x05 \x01(\x05R\bpriority\"\\\n" +
 	"\x13ReportResultRequest\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x18\n" +
 	"\asuccess\x18\x02 \x01(\bR\asuccess\x12\x14\n" +
@@ -652,14 +1478,69 @@ const file_pulse_v1_pulse_proto_rawDesc = "" +
 	"\tworker_id\x18\x02 \x01(\tR\bworkerId\"4\n" +
 	"\x11HeartbeatResponse\x12\x1f\n" +
 	"\vshould_stop\x18\x01 \x01(\bR\n" +
-	"shouldStop2\xf1\x02\n" +
+	"shouldStop\"\xc6\x01\n" +
+	"\x15CreateScheduleRequest\x12\x14\n" +
+	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x18\n" +
+	"\apayload\x18\x02 \x01(\fR\apayload\x12,\n" +
+	"\x02at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x02at\x121\n" +
+	"\x05every\x18\x04 \x01(\v2\x19.google.protobuf.DurationH\x00R\x05every\x12\x14\n" +
+	"\x04cron\x18\x05 \x01(\tH\x00R\x04cronB\x06\n" +
+	"\x04spec\"9\n" +
+	"\x16CreateScheduleResponse\x12\x1f\n" +
+	"\vschedule_id\x18\x01 \x01(\tR\n" +
+	"scheduleId\"7\n" +
+	"\x14PauseScheduleRequest\x12\x1f\n" +
+	"\vschedule_id\x18\x01 \x01(\tR\n" +
+	"scheduleId\"\x17\n" +
+	"\x15PauseScheduleResponse\"8\n" +
+	"\x15ResumeScheduleRequest\x12\x1f\n" +
+	"\vschedule_id\x18\x01 \x01(\tR\n" +
+	"scheduleId\"\x18\n" +
+	"\x16ResumeScheduleResponse\"8\n" +
+	"\x15DeleteScheduleRequest\x12\x1f\n" +
+	"\vschedule_id\x18\x01 \x01(\tR\n" +
+	"scheduleId\"\x18\n" +
+	"\x16DeleteScheduleResponse\"\xae\x02\n" +
+	"\fScheduleView\x12\x1f\n" +
+	"\vschedule_id\x18\x01 \x01(\tR\n" +
+	"scheduleId\x12\x14\n" +
+	"\x05topic\x18\x02 \x01(\tR\x05topic\x12\x12\n" +
+	"\x04kind\x18\x03 \x01(\tR\x04kind\x12\x12\n" +
+	"\x04cron\x18\x04 \x01(\tR\x04cron\x12/\n" +
+	"\x05every\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\x05every\x12:\n" +
+	"\vnext_run_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tnextRunAt\x12:\n" +
+	"\vlast_run_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tlastRunAt\x12\x16\n" +
+	"\x06paused\x18\b \x01(\bR\x06paused\"\x16\n" +
+	"\x14ListSchedulesRequest\"M\n" +
+	"\x15ListSchedulesResponse\x124\n" +
+	"\tschedules\x18\x01 \x03(\v2\x16.pulse.v1.ScheduleViewR\tschedules\":\n" +
+	"\x17ListScheduleJobsRequest\x12\x1f\n" +
+	"\vschedule_id\x18\x01 \x01(\tR\n" +
+	"scheduleId\"A\n" +
+	"\x18ListScheduleJobsResponse\x12%\n" +
+	"\x04jobs\x18\x01 \x03(\v2\x11.pulse.v1.JobViewR\x04jobs\"\\\n" +
+	"\fScheduleFire\x12\x15\n" +
+	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x125\n" +
+	"\bfired_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\afiredAt\";\n" +
+	"\x18ListScheduleFiresRequest\x12\x1f\n" +
+	"\vschedule_id\x18\x01 \x01(\tR\n" +
+	"scheduleId\"I\n" +
+	"\x19ListScheduleFiresResponse\x12,\n" +
+	"\x05fires\x18\x01 \x03(\v2\x16.pulse.v1.ScheduleFireR\x05fires2\xcd\a\n" +
 	"\fPulseService\x12D\n" +
 	"\tSubmitJob\x12\x1a.pulse.v1.SubmitJobRequest\x1a\x1b.pulse.v1.SubmitJobResponse\x12;\n" +
 	"\x06GetJob\x12\x17.pulse.v1.GetJobRequest\x1a\x18.pulse.v1.GetJobResponse\x12I\n" +
 	"\n" +
 	"StreamJobs\x12\x1b.pulse.v1.StreamJobsRequest\x1a\x1c.pulse.v1.StreamJobsResponse0\x01\x12M\n" +
 	"\fReportResult\x12\x1d.pulse.v1.ReportResultRequest\x1a\x1e.pulse.v1.ReportResultResponse\x12D\n" +
-	"\tHeartbeat\x12\x1a.pulse.v1.HeartbeatRequest\x1a\x1b.pulse.v1.HeartbeatResponseB'Z%github.com/bete7512/pulse/gen/pulsev1b\x06proto3"
+	"\tHeartbeat\x12\x1a.pulse.v1.HeartbeatRequest\x1a\x1b.pulse.v1.HeartbeatResponse\x12S\n" +
+	"\x0eCreateSchedule\x12\x1f.pulse.v1.CreateScheduleRequest\x1a .pulse.v1.CreateScheduleResponse\x12P\n" +
+	"\rPauseSchedule\x12\x1e.pulse.v1.PauseScheduleRequest\x1a\x1f.pulse.v1.PauseScheduleResponse\x12S\n" +
+	"\x0eResumeSchedule\x12\x1f.pulse.v1.ResumeScheduleRequest\x1a .pulse.v1.ResumeScheduleResponse\x12S\n" +
+	"\x0eDeleteSchedule\x12\x1f.pulse.v1.DeleteScheduleRequest\x1a .pulse.v1.DeleteScheduleResponse\x12P\n" +
+	"\rListSchedules\x12\x1e.pulse.v1.ListSchedulesRequest\x1a\x1f.pulse.v1.ListSchedulesResponse\x12Y\n" +
+	"\x10ListScheduleJobs\x12!.pulse.v1.ListScheduleJobsRequest\x1a\".pulse.v1.ListScheduleJobsResponse\x12\\\n" +
+	"\x11ListScheduleFires\x12\".pulse.v1.ListScheduleFiresRequest\x1a#.pulse.v1.ListScheduleFiresResponseB'Z%github.com/bete7512/pulse/gen/pulsev1b\x06proto3"
 
 var (
 	file_pulse_v1_pulse_proto_rawDescOnce sync.Once
@@ -673,39 +1554,80 @@ func file_pulse_v1_pulse_proto_rawDescGZIP() []byte {
 	return file_pulse_v1_pulse_proto_rawDescData
 }
 
-var file_pulse_v1_pulse_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_pulse_v1_pulse_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_pulse_v1_pulse_proto_goTypes = []any{
-	(*SubmitJobRequest)(nil),     // 0: pulse.v1.SubmitJobRequest
-	(*SubmitJobResponse)(nil),    // 1: pulse.v1.SubmitJobResponse
-	(*GetJobRequest)(nil),        // 2: pulse.v1.GetJobRequest
-	(*GetJobResponse)(nil),       // 3: pulse.v1.GetJobResponse
-	(*JobView)(nil),              // 4: pulse.v1.JobView
-	(*StreamJobsRequest)(nil),    // 5: pulse.v1.StreamJobsRequest
-	(*StreamJobsResponse)(nil),   // 6: pulse.v1.StreamJobsResponse
-	(*JobAssignment)(nil),        // 7: pulse.v1.JobAssignment
-	(*ReportResultRequest)(nil),  // 8: pulse.v1.ReportResultRequest
-	(*ReportResultResponse)(nil), // 9: pulse.v1.ReportResultResponse
-	(*HeartbeatRequest)(nil),     // 10: pulse.v1.HeartbeatRequest
-	(*HeartbeatResponse)(nil),    // 11: pulse.v1.HeartbeatResponse
+	(*SubmitJobRequest)(nil),          // 0: pulse.v1.SubmitJobRequest
+	(*SubmitJobResponse)(nil),         // 1: pulse.v1.SubmitJobResponse
+	(*GetJobRequest)(nil),             // 2: pulse.v1.GetJobRequest
+	(*GetJobResponse)(nil),            // 3: pulse.v1.GetJobResponse
+	(*JobView)(nil),                   // 4: pulse.v1.JobView
+	(*StreamJobsRequest)(nil),         // 5: pulse.v1.StreamJobsRequest
+	(*StreamJobsResponse)(nil),        // 6: pulse.v1.StreamJobsResponse
+	(*JobAssignment)(nil),             // 7: pulse.v1.JobAssignment
+	(*ReportResultRequest)(nil),       // 8: pulse.v1.ReportResultRequest
+	(*ReportResultResponse)(nil),      // 9: pulse.v1.ReportResultResponse
+	(*HeartbeatRequest)(nil),          // 10: pulse.v1.HeartbeatRequest
+	(*HeartbeatResponse)(nil),         // 11: pulse.v1.HeartbeatResponse
+	(*CreateScheduleRequest)(nil),     // 12: pulse.v1.CreateScheduleRequest
+	(*CreateScheduleResponse)(nil),    // 13: pulse.v1.CreateScheduleResponse
+	(*PauseScheduleRequest)(nil),      // 14: pulse.v1.PauseScheduleRequest
+	(*PauseScheduleResponse)(nil),     // 15: pulse.v1.PauseScheduleResponse
+	(*ResumeScheduleRequest)(nil),     // 16: pulse.v1.ResumeScheduleRequest
+	(*ResumeScheduleResponse)(nil),    // 17: pulse.v1.ResumeScheduleResponse
+	(*DeleteScheduleRequest)(nil),     // 18: pulse.v1.DeleteScheduleRequest
+	(*DeleteScheduleResponse)(nil),    // 19: pulse.v1.DeleteScheduleResponse
+	(*ScheduleView)(nil),              // 20: pulse.v1.ScheduleView
+	(*ListSchedulesRequest)(nil),      // 21: pulse.v1.ListSchedulesRequest
+	(*ListSchedulesResponse)(nil),     // 22: pulse.v1.ListSchedulesResponse
+	(*ListScheduleJobsRequest)(nil),   // 23: pulse.v1.ListScheduleJobsRequest
+	(*ListScheduleJobsResponse)(nil),  // 24: pulse.v1.ListScheduleJobsResponse
+	(*ScheduleFire)(nil),              // 25: pulse.v1.ScheduleFire
+	(*ListScheduleFiresRequest)(nil),  // 26: pulse.v1.ListScheduleFiresRequest
+	(*ListScheduleFiresResponse)(nil), // 27: pulse.v1.ListScheduleFiresResponse
+	(*timestamppb.Timestamp)(nil),     // 28: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),       // 29: google.protobuf.Duration
 }
 var file_pulse_v1_pulse_proto_depIdxs = []int32{
 	4,  // 0: pulse.v1.GetJobResponse.job:type_name -> pulse.v1.JobView
 	7,  // 1: pulse.v1.StreamJobsResponse.assignment:type_name -> pulse.v1.JobAssignment
-	0,  // 2: pulse.v1.PulseService.SubmitJob:input_type -> pulse.v1.SubmitJobRequest
-	2,  // 3: pulse.v1.PulseService.GetJob:input_type -> pulse.v1.GetJobRequest
-	5,  // 4: pulse.v1.PulseService.StreamJobs:input_type -> pulse.v1.StreamJobsRequest
-	8,  // 5: pulse.v1.PulseService.ReportResult:input_type -> pulse.v1.ReportResultRequest
-	10, // 6: pulse.v1.PulseService.Heartbeat:input_type -> pulse.v1.HeartbeatRequest
-	1,  // 7: pulse.v1.PulseService.SubmitJob:output_type -> pulse.v1.SubmitJobResponse
-	3,  // 8: pulse.v1.PulseService.GetJob:output_type -> pulse.v1.GetJobResponse
-	6,  // 9: pulse.v1.PulseService.StreamJobs:output_type -> pulse.v1.StreamJobsResponse
-	9,  // 10: pulse.v1.PulseService.ReportResult:output_type -> pulse.v1.ReportResultResponse
-	11, // 11: pulse.v1.PulseService.Heartbeat:output_type -> pulse.v1.HeartbeatResponse
-	7,  // [7:12] is the sub-list for method output_type
-	2,  // [2:7] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	28, // 2: pulse.v1.CreateScheduleRequest.at:type_name -> google.protobuf.Timestamp
+	29, // 3: pulse.v1.CreateScheduleRequest.every:type_name -> google.protobuf.Duration
+	29, // 4: pulse.v1.ScheduleView.every:type_name -> google.protobuf.Duration
+	28, // 5: pulse.v1.ScheduleView.next_run_at:type_name -> google.protobuf.Timestamp
+	28, // 6: pulse.v1.ScheduleView.last_run_at:type_name -> google.protobuf.Timestamp
+	20, // 7: pulse.v1.ListSchedulesResponse.schedules:type_name -> pulse.v1.ScheduleView
+	4,  // 8: pulse.v1.ListScheduleJobsResponse.jobs:type_name -> pulse.v1.JobView
+	28, // 9: pulse.v1.ScheduleFire.fired_at:type_name -> google.protobuf.Timestamp
+	25, // 10: pulse.v1.ListScheduleFiresResponse.fires:type_name -> pulse.v1.ScheduleFire
+	0,  // 11: pulse.v1.PulseService.SubmitJob:input_type -> pulse.v1.SubmitJobRequest
+	2,  // 12: pulse.v1.PulseService.GetJob:input_type -> pulse.v1.GetJobRequest
+	5,  // 13: pulse.v1.PulseService.StreamJobs:input_type -> pulse.v1.StreamJobsRequest
+	8,  // 14: pulse.v1.PulseService.ReportResult:input_type -> pulse.v1.ReportResultRequest
+	10, // 15: pulse.v1.PulseService.Heartbeat:input_type -> pulse.v1.HeartbeatRequest
+	12, // 16: pulse.v1.PulseService.CreateSchedule:input_type -> pulse.v1.CreateScheduleRequest
+	14, // 17: pulse.v1.PulseService.PauseSchedule:input_type -> pulse.v1.PauseScheduleRequest
+	16, // 18: pulse.v1.PulseService.ResumeSchedule:input_type -> pulse.v1.ResumeScheduleRequest
+	18, // 19: pulse.v1.PulseService.DeleteSchedule:input_type -> pulse.v1.DeleteScheduleRequest
+	21, // 20: pulse.v1.PulseService.ListSchedules:input_type -> pulse.v1.ListSchedulesRequest
+	23, // 21: pulse.v1.PulseService.ListScheduleJobs:input_type -> pulse.v1.ListScheduleJobsRequest
+	26, // 22: pulse.v1.PulseService.ListScheduleFires:input_type -> pulse.v1.ListScheduleFiresRequest
+	1,  // 23: pulse.v1.PulseService.SubmitJob:output_type -> pulse.v1.SubmitJobResponse
+	3,  // 24: pulse.v1.PulseService.GetJob:output_type -> pulse.v1.GetJobResponse
+	6,  // 25: pulse.v1.PulseService.StreamJobs:output_type -> pulse.v1.StreamJobsResponse
+	9,  // 26: pulse.v1.PulseService.ReportResult:output_type -> pulse.v1.ReportResultResponse
+	11, // 27: pulse.v1.PulseService.Heartbeat:output_type -> pulse.v1.HeartbeatResponse
+	13, // 28: pulse.v1.PulseService.CreateSchedule:output_type -> pulse.v1.CreateScheduleResponse
+	15, // 29: pulse.v1.PulseService.PauseSchedule:output_type -> pulse.v1.PauseScheduleResponse
+	17, // 30: pulse.v1.PulseService.ResumeSchedule:output_type -> pulse.v1.ResumeScheduleResponse
+	19, // 31: pulse.v1.PulseService.DeleteSchedule:output_type -> pulse.v1.DeleteScheduleResponse
+	22, // 32: pulse.v1.PulseService.ListSchedules:output_type -> pulse.v1.ListSchedulesResponse
+	24, // 33: pulse.v1.PulseService.ListScheduleJobs:output_type -> pulse.v1.ListScheduleJobsResponse
+	27, // 34: pulse.v1.PulseService.ListScheduleFires:output_type -> pulse.v1.ListScheduleFiresResponse
+	23, // [23:35] is the sub-list for method output_type
+	11, // [11:23] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_pulse_v1_pulse_proto_init() }
@@ -713,13 +1635,18 @@ func file_pulse_v1_pulse_proto_init() {
 	if File_pulse_v1_pulse_proto != nil {
 		return
 	}
+	file_pulse_v1_pulse_proto_msgTypes[12].OneofWrappers = []any{
+		(*CreateScheduleRequest_At)(nil),
+		(*CreateScheduleRequest_Every)(nil),
+		(*CreateScheduleRequest_Cron)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pulse_v1_pulse_proto_rawDesc), len(file_pulse_v1_pulse_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

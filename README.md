@@ -30,6 +30,17 @@ are all internal to the server.
 - **Honest delivery semantics.** At-least-once delivery + idempotent handlers = effectively-once.
   Exactly-once across a network is impossible, and pulse says so (see
   [ADR-0004](docs/adr/0004-command-side-invariants.md)).
+- **Scheduling** — run a job once at a time (`At`/`After`), on an interval (`Every`), or on a
+  `Cron` expression. Timing lives in a mutable `schedules` table (a future run isn't a *fact*, so
+  it's config, not an event); a scheduler loop fires due rows with `FOR UPDATE SKIP LOCKED` and a
+  deterministic `uuidv5(schedule_id|occurrence)` id — **exactly-once per occurrence, crash-safe,
+  multi-instance**, reusing the same `UNIQUE(job_id, sequence)` invariant. Spawned jobs are
+  ordinary jobs tagged with `schedule_id`, so you get full lineage (which jobs a schedule produced,
+  when it fired).
+- **Priority dispatch.** A job can be submitted with a priority (`WithPriority(n)`, default 0);
+  the dispatch head-scan orders `priority DESC, created_at ASC` — higher priority first, ties broken
+  by arrival (FIFO). Priority is a submit-time *fact* on `JobSubmitted` (like topic), fully
+  backward-compatible, and backed by a partial index so the planner needn't sort the pending set.
 
 ---
 
@@ -64,8 +75,24 @@ pulse.Register(p, "send-email", func(ctx context.Context, a EmailArgs) error {
 // enqueue a job by name:
 pulse.Enqueue(ctx, p, "send-email", EmailArgs{To: "a@b.com", Subject: "Welcome"})
 
+// ...or jump the queue with a higher priority (default 0):
+pulse.Enqueue(ctx, p, "send-email", EmailArgs{To: "vip@b.com"}, pulse.WithPriority(10))
+
 p.Run(ctx)        // process jobs until ctx is cancelled
 ```
+
+**Scheduling** — same SDK, spawn jobs later / repeatedly:
+```go
+id, _ := p.Schedule(ctx, "reminder",  payload, pulse.At(tomorrow9am))      // once, at a time
+id, _ := p.Schedule(ctx, "reconcile", payload, pulse.Every(5*time.Minute)) // on an interval
+id, _ := p.Schedule(ctx, "rollup",    payload, pulse.Cron("0 * * * *"))    // hourly, on the hour
+
+p.PauseSchedule(ctx, id); p.ResumeSchedule(ctx, id); p.DeleteSchedule(ctx, id)
+p.ListScheduleJobs(ctx, id)   // jobs this schedule spawned (+ status)
+p.ListScheduleFires(ctx, id)  // when it fired → which job (lineage)
+```
+A scheduled job arrives at the *same* `Register`ed handler — workers never know it came from a
+schedule. (`pulse.ScheduleJob[T]` is the typed mirror of `Enqueue`.)
 
 See [`examples/`](examples/) for a runnable producer + worker.
 
@@ -87,9 +114,10 @@ See [`examples/`](examples/) for a runnable producer + worker.
      handlers run in your process            all state is one append-only
      — only gRPC data crosses the wire       event log  =  the source of truth
 
-   inside the server, two loops read that log:
-     • projector → keeps the jobs read model current     (CQRS)
-     • watchdog  → re-dispatches jobs whose worker died  (via liveness)
+   inside the server, background loops run:
+     • projector → keeps the jobs read model current      (CQRS, reads the log)
+     • watchdog  → re-dispatches jobs whose worker died   (via liveness)
+     • scheduler → fires due schedules → appends new jobs (reads the schedules table)
 ```
 
 The event store is the single source of truth; everything else (read model, dispatch, recovery)

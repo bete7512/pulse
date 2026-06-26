@@ -28,10 +28,11 @@ func (s *ServiceSuite) TestSubmit_AppendsJobSubmitted() {
 		func(_ context.Context, e domain.Event) (string, error) {
 			s.Equal(domain.JobSubmitted, e.Type)
 			s.Equal("send-email", e.Topic)
+			s.Equal(7, e.Priority) // priority is carried onto the event
 			return e.JobId, nil
 		})
 
-	id, err := s.svc().Submit(ctx(), "send-email", []byte(`{}`))
+	id, err := s.svc().Submit(ctx(), "send-email", []byte(`{}`), 7)
 	s.NoError(err)
 	s.NotEmpty(id)
 }
@@ -66,15 +67,6 @@ func (s *ServiceSuite) TestListPendingJobsByTopics_FoldsEachJob() {
 	s.Equal("j", jobs[0].ID)
 	s.Equal("t", jobs[0].Topic)
 	s.Equal(domain.Pending, jobs[0].Status)
-}
-
-func (s *ServiceSuite) TestGetJobForDispatch_Folds() {
-	s.events.EXPECT().LoadEventsForJob(gomock.Any(), "j").
-		Return([]domain.Event{{JobId: "j", Type: domain.JobSubmitted}, {JobId: "j", Type: domain.JobStarted}}, nil)
-
-	job, err := s.svc().GetJobForDispatch(ctx(), "j")
-	s.NoError(err)
-	s.Equal(domain.Running, job.Status)
 }
 
 func (s *ServiceSuite) TestStartJob_RetriesOnConflict() {
@@ -118,7 +110,7 @@ func (s *ServiceSuite) TestEndRun_AppendsTerminalEventAndClearsLiveness() {
 			name:     "cancel a pending job",
 			stream:   []domain.Event{{JobId: "j", Type: domain.JobSubmitted}},
 			call:     func(svc service.JobService) error { return svc.CancelJob(ctx(), "j") },
-			wantType: domain.JOBCanceled,
+			wantType: domain.JobCanceled,
 		},
 	}
 	for _, tc := range cases {

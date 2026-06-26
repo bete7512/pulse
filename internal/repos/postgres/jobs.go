@@ -30,9 +30,9 @@ func NewJob(pool *pgxpool.Pool) *Job {
 func (s *Job) GetJob(ctx context.Context, jobID string) (*domain.Job, error) {
 	var j domain.Job
 	err := s.pool.QueryRow(ctx, `
-		SELECT job_id, status, submitted_at, started_at, completed_at, message
+		SELECT job_id, status, submitted_at, started_at, completed_at, message, schedule_id, priority
 		FROM jobs WHERE job_id=$1`, jobID).
-		Scan(&j.ID, &j.Status, &j.SubmittedAt, &j.StartedAt, &j.CompletedAt, &j.Message)
+		Scan(&j.ID, &j.Status, &j.SubmittedAt, &j.StartedAt, &j.CompletedAt, &j.Message, &j.ScheduleID, &j.Priority)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, pkg_errors.ErrNotFound
 	}
@@ -41,14 +41,29 @@ func (s *Job) GetJob(ctx context.Context, jobID string) (*domain.Job, error) {
 
 func (s *Job) ListJobs(ctx context.Context) ([]domain.Job, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT job_id, status, submitted_at, started_at, completed_at, message
+		SELECT job_id, status, submitted_at, started_at, completed_at, message, schedule_id, priority
 		FROM jobs ORDER BY submitted_at DESC`)
 	if err != nil {
 		return nil, err
 	}
 	return pgx.CollectRows(rows, func(row pgx.CollectableRow) (domain.Job, error) {
 		var j domain.Job
-		err := row.Scan(&j.ID, &j.Status, &j.SubmittedAt, &j.StartedAt, &j.CompletedAt, &j.Message)
+		err := row.Scan(&j.ID, &j.Status, &j.SubmittedAt, &j.StartedAt, &j.CompletedAt, &j.Message, &j.ScheduleID, &j.Priority)
+		return j, err
+	})
+}
+
+// JobsBySchedule returns the jobs a schedule spawned (newest first) from the read model.
+func (s *Job) JobsBySchedule(ctx context.Context, scheduleID string) ([]domain.Job, error) {
+	rows, err := s.pool.Query(ctx, `
+		SELECT job_id, status, submitted_at, started_at, completed_at, message, schedule_id, priority
+		FROM jobs WHERE schedule_id = $1 ORDER BY submitted_at DESC`, scheduleID)
+	if err != nil {
+		return nil, err
+	}
+	return pgx.CollectRows(rows, func(row pgx.CollectableRow) (domain.Job, error) {
+		var j domain.Job
+		err := row.Scan(&j.ID, &j.Status, &j.SubmittedAt, &j.StartedAt, &j.CompletedAt, &j.Message, &j.ScheduleID, &j.Priority)
 		return j, err
 	})
 }
@@ -73,12 +88,13 @@ func (s *Job) LaggingJobs(ctx context.Context) ([]string, error) {
 // the incoming sequence is newer so concurrent projectors stay monotonic.
 func (s *Job) Upsert(ctx context.Context, job domain.Job, seq int64) error {
 	const query = `
-		INSERT INTO jobs (job_id, status, submitted_at, started_at, completed_at, message, last_sequence)
-		VALUES (@job_id, @status, @submitted_at, @started_at, @completed_at, @message, @last_sequence)
+		INSERT INTO jobs (job_id, status, submitted_at, started_at, completed_at, message, last_sequence, schedule_id, priority)
+		VALUES (@job_id, @status, @submitted_at, @started_at, @completed_at, @message, @last_sequence, @schedule_id, @priority)
 		ON CONFLICT (job_id) DO UPDATE SET
 			status=EXCLUDED.status, started_at=EXCLUDED.started_at,
 			completed_at=EXCLUDED.completed_at, message=EXCLUDED.message,
-			last_sequence=EXCLUDED.last_sequence
+			last_sequence=EXCLUDED.last_sequence, schedule_id=EXCLUDED.schedule_id,
+			priority=EXCLUDED.priority
 		WHERE jobs.last_sequence < EXCLUDED.last_sequence`
 
 	_, err := s.pool.Exec(ctx, query, pgx.NamedArgs{
@@ -89,6 +105,8 @@ func (s *Job) Upsert(ctx context.Context, job domain.Job, seq int64) error {
 		"completed_at":  job.CompletedAt,
 		"message":       job.Message,
 		"last_sequence": seq,
+		"schedule_id":   job.ScheduleID,
+		"priority":      job.Priority,
 	})
 	return err
 }

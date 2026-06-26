@@ -2,17 +2,30 @@ syntax = "proto3";
 package pulse.v1;
 option go_package = "github.com/bete7512/pulse/gen/pulsev1";
 
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
 service PulseService {
   rpc SubmitJob   (SubmitJobRequest)   returns (SubmitJobResponse);        // client
   rpc GetJob      (GetJobRequest)      returns (GetJobResponse);           // client
   rpc StreamJobs  (StreamJobsRequest)  returns (stream StreamJobsResponse);// worker subscribes
   rpc ReportResult(ReportResultRequest) returns (ReportResultResponse);    // worker reports
   rpc Heartbeat   (HeartbeatRequest)   returns (HeartbeatResponse);        // worker renews its lease
+
+  // scheduling (client)
+  rpc CreateSchedule    (CreateScheduleRequest)    returns (CreateScheduleResponse);
+  rpc PauseSchedule     (PauseScheduleRequest)     returns (PauseScheduleResponse);
+  rpc ResumeSchedule    (ResumeScheduleRequest)    returns (ResumeScheduleResponse);
+  rpc DeleteSchedule    (DeleteScheduleRequest)    returns (DeleteScheduleResponse);
+  rpc ListSchedules     (ListSchedulesRequest)     returns (ListSchedulesResponse);
+  rpc ListScheduleJobs  (ListScheduleJobsRequest)  returns (ListScheduleJobsResponse);
+  rpc ListScheduleFires (ListScheduleFiresRequest) returns (ListScheduleFiresResponse);
 }
 
 message SubmitJobRequest  {
     string topic = 1;
     bytes payload = 2;
+    int32 priority = 3;  // dispatch priority; higher runs first, default 0
  }
 
 message SubmitJobResponse { 
@@ -46,6 +59,7 @@ message JobAssignment     {
     string topic = 2;
     bytes payload = 3;
     int32 attempt = 4;
+    int32 priority = 5;  // the job's dispatch priority (informational for the worker)
 }
 
 message ReportResultRequest { 
@@ -66,3 +80,43 @@ message HeartbeatRequest {
 message HeartbeatResponse {
     bool should_stop = 1; // server may later use this to ask the worker to abort
 }
+
+// ── scheduling ──────────────────────────────────────────────────────────────
+
+message CreateScheduleRequest {
+    string topic = 1;
+    bytes  payload = 2;
+    oneof spec {
+        google.protobuf.Timestamp at    = 3; // run once at this time
+        google.protobuf.Duration  every = 4; // run every interval
+        string                    cron  = 5; // run on this cron expression
+    }
+}
+message CreateScheduleResponse { string schedule_id = 1; }
+
+message PauseScheduleRequest  { string schedule_id = 1; }
+message PauseScheduleResponse {}
+message ResumeScheduleRequest  { string schedule_id = 1; }
+message ResumeScheduleResponse {}
+message DeleteScheduleRequest  { string schedule_id = 1; }
+message DeleteScheduleResponse {}
+
+message ScheduleView {
+    string                    schedule_id = 1;
+    string                    topic       = 2;
+    string                    kind        = 3; // once | interval | cron
+    string                    cron        = 4;
+    google.protobuf.Duration  every       = 5;
+    google.protobuf.Timestamp next_run_at = 6;
+    google.protobuf.Timestamp last_run_at = 7;
+    bool                      paused      = 8;
+}
+message ListSchedulesRequest  {}
+message ListSchedulesResponse { repeated ScheduleView schedules = 1; }
+
+message ListScheduleJobsRequest  { string schedule_id = 1; }
+message ListScheduleJobsResponse { repeated JobView jobs = 1; }
+
+message ScheduleFire { string job_id = 1; google.protobuf.Timestamp fired_at = 2; }
+message ListScheduleFiresRequest  { string schedule_id = 1; }
+message ListScheduleFiresResponse { repeated ScheduleFire fires = 1; }

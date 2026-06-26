@@ -24,9 +24,10 @@ import (
 )
 
 const (
-	grpcAddr        = ":50051"
-	projectInterval = 500 * time.Millisecond
-	shutdownTimeout = 5 * time.Second
+	grpcAddr         = ":50051"
+	projectInterval  = 500 * time.Millisecond
+	scheduleInterval = 1 * time.Second // how often the scheduler checks for due schedules
+	shutdownTimeout  = 5 * time.Second
 
 	// liveness/watchdog: a worker renews its liveness via heartbeats while running; if
 	// it expires (TTL passed) the watchdog re-dispatches the job. livenessTTL should be
@@ -74,11 +75,12 @@ func run() error {
 	if err = migrationService.Run(ctx, db, []string{"up"}); err != nil {
 		log.Fatalf("failed to run migrate command %v", err)
 	}
-	svc, proj, wd := buildServices(db, logger)
+	svc, proj, wd, sched, scheduleAdmin := buildServices(db, logger)
 	go proj.Run(ctx)
 	go wd.Run(ctx)
+	go sched.Run(ctx)
 
-	gs, err := serveGRPC(svc, logger)
+	gs, err := serveGRPC(svc, scheduleAdmin, logger)
 	if err != nil {
 		return err
 	}
@@ -95,27 +97,31 @@ func newLogger() *slog.Logger {
 	return slog.New(h)
 }
 
-// buildServices wires the read/write stack: event store, query reader, projector,
-// the command/query service, and the watchdog that recovers stuck jobs.
-func buildServices(db *pgxpool.Pool, logger *slog.Logger) (service.JobService, service.ProjectorService, service.WatchdogService) {
+// buildServices wires the read/write stack: event store, query reader, projector, the
+// command/query service, the watchdog that recovers stuck jobs, and the scheduler that
+// fires scheduled/recurring jobs.
+func buildServices(db *pgxpool.Pool, logger *slog.Logger) (service.JobService, service.ProjectorService, service.WatchdogService, service.SchedulerService, service.ScheduleService) {
 	events := postgres.NewEvent(db)
 	jobStore := postgres.NewJob(db)
 	live := postgres.NewLiveness(db)
+	scheduleStore := postgres.NewSchedule(db)
 	svc := service.New(events, jobStore, live, livenessTTL)
 	proj := service.NewProjector(events, jobStore, projectInterval, logger)
 	wd := service.NewWatchdog(live, events, svc, orphanGrace, watchInterval, logger)
-	return svc, proj, wd
+	sched := service.NewScheduler(scheduleStore, events, scheduleInterval, logger)
+	scheduleAdmin := service.NewScheduleService(scheduleStore, jobStore, events)
+	return svc, proj, wd, sched, scheduleAdmin
 }
 
 // serveGRPC registers the Pulse service and starts serving in the background,
 // returning the server so the caller can shut it down.
-func serveGRPC(svc service.JobService, logger *slog.Logger) (*grpc.Server, error) {
+func serveGRPC(svc service.JobService, scheduleAdmin service.ScheduleService, logger *slog.Logger) (*grpc.Server, error) {
 	lis, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
 		return nil, fmt.Errorf("listen %s: %w", grpcAddr, err)
 	}
 	gs := grpc.NewServer()
-	pulsev1.RegisterPulseServiceServer(gs, grpcserver.New(svc))
+	pulsev1.RegisterPulseServiceServer(gs, grpcserver.New(svc, scheduleAdmin))
 
 	go func() {
 		if err := gs.Serve(lis); err != nil && !errors.Is(err, grpc.ErrServerStopped) {

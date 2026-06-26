@@ -26,9 +26,9 @@ func (r *recordingSink) send(a *pulsev1.JobAssignment) error {
 func (s *ServerSuite) TestDispatchReady_ClaimsAndSendsSkippingLosers() {
 	topics := []string{"email"}
 	pending := []domain.Job{
-		{ID: "a", Topic: "email", Payload: []byte(`{}`), Attempts: 0}, // attempt 1
-		{ID: "b", Topic: "email", Attempts: 1},                        // a retried job — but loses the claim
-		{ID: "c", Topic: "email", Attempts: 2},                        // attempt 3
+		{ID: "a", Topic: "email", Payload: []byte(`{}`), Attempts: 0, Priority: 9}, // attempt 1
+		{ID: "b", Topic: "email", Attempts: 1},                                     // a retried job — but loses the claim
+		{ID: "c", Topic: "email", Attempts: 2},                                     // attempt 3
 	}
 	s.svc.EXPECT().ListPendingJobsByTopics(gomock.Any(), topics).Return(pending, nil)
 	s.svc.EXPECT().StartJob(gomock.Any(), "a", "w1").Return(nil)
@@ -41,6 +41,7 @@ func (s *ServerSuite) TestDispatchReady_ClaimsAndSendsSkippingLosers() {
 	s.Require().Len(sink.got, 2) // b skipped
 	s.Equal("a", sink.got[0].JobId)
 	s.Equal(int32(1), sink.got[0].Attempt)
+	s.Equal(int32(9), sink.got[0].Priority) // priority carried to the assignment
 	s.Equal([]byte(`{}`), sink.got[0].Payload)
 	s.Equal("c", sink.got[1].JobId)
 	s.Equal(int32(3), sink.got[1].Attempt)

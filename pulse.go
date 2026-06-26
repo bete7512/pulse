@@ -94,8 +94,13 @@ func (c *Client) Close() error { return c.cc.Close() }
 
 // Submit enqueues a job with a raw JSON payload under topic. Prefer the typed
 // JobType[T].Submit — this is the escape hatch for dynamically-typed topics.
-func (c *Client) Submit(ctx context.Context, topic string, payload []byte) (string, error) {
-	r, err := c.api.SubmitJob(ctx, &pulsev1.SubmitJobRequest{Topic: topic, Payload: payload})
+// Pass WithPriority to dispatch ahead of lower-priority work on the same topic.
+func (c *Client) Submit(ctx context.Context, topic string, payload []byte, opts ...SubmitOption) (string, error) {
+	req := &pulsev1.SubmitJobRequest{Topic: topic, Payload: payload}
+	for _, opt := range opts {
+		opt(req)
+	}
+	r, err := c.api.SubmitJob(ctx, req)
 	if err != nil {
 		return "", err
 	}

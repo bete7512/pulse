@@ -43,11 +43,11 @@ func (s *Event) Append(ctx context.Context, e domain.Event) (string, error) {
 	e.CreatedAt = time.Now()
 
 	const query = `
-		INSERT INTO events (id, job_id, type, sequence, payload, message, created_at, topic, next_attempt_at)
+		INSERT INTO events (id, job_id, type, sequence, payload, message, created_at, topic, next_attempt_at, schedule_id, priority)
 		VALUES (
 			@id, @job_id, @type,
 			(SELECT COALESCE(MAX(sequence), 0) + 1 FROM events WHERE job_id = @job_id),
-			@payload, @message, @created_at, @topic, @next_attempt_at
+			@payload, @message, @created_at, @topic, @next_attempt_at, @schedule_id, @priority
 		)
 		RETURNING job_id`
 
@@ -61,6 +61,8 @@ func (s *Event) Append(ctx context.Context, e domain.Event) (string, error) {
 		"created_at":      e.CreatedAt,
 		"topic":           e.Topic,
 		"next_attempt_at": e.NextAttemptAt,
+		"schedule_id":     e.ScheduleID,
+		"priority":        e.Priority,
 	}).Scan(&jobID)
 	if err != nil {
 		if isUniqueViolation(err) {
@@ -87,11 +89,11 @@ func (s *Event) AppendBatch(ctx context.Context, events []domain.Event) error {
 	defer tx.Rollback(ctx) // no-op once committed
 
 	const query = `
-		INSERT INTO events (id, job_id, type, sequence, payload, message, created_at, topic, next_attempt_at)
+		INSERT INTO events (id, job_id, type, sequence, payload, message, created_at, topic, next_attempt_at, schedule_id, priority)
 		VALUES (
 			@id, @job_id, @type,
 			(SELECT COALESCE(MAX(sequence), 0) + 1 FROM events WHERE job_id = @job_id),
-			@payload, @message, @created_at, @topic, @next_attempt_at
+			@payload, @message, @created_at, @topic, @next_attempt_at, @schedule_id, @priority
 		)`
 
 	for _, e := range events {
@@ -108,6 +110,8 @@ func (s *Event) AppendBatch(ctx context.Context, events []domain.Event) error {
 			"created_at":      time.Now(),
 			"topic":           e.Topic,
 			"next_attempt_at": e.NextAttemptAt,
+			"schedule_id":     e.ScheduleID,
+			"priority":        e.Priority,
 		})
 		if err != nil {
 			if isUniqueViolation(err) {
@@ -129,7 +133,7 @@ func isUniqueViolation(err error) bool {
 // LoadEventsForJob returns every event for a job ordered by sequence.
 func (s *Event) LoadEventsForJob(ctx context.Context, jobID string) ([]domain.Event, error) {
 	const query = `
-		SELECT id, type, job_id, sequence, payload, message, created_at, topic, next_attempt_at
+		SELECT id, type, job_id, sequence, payload, message, created_at, topic, next_attempt_at, schedule_id, priority
 		FROM events
 		WHERE job_id = $1
 		ORDER BY sequence`
@@ -153,10 +157,10 @@ type ListEventOpts struct {
 
 func (s *Event) ListEventsByTopics(ctx context.Context, topics []string) ([]domain.Event, error) {
 	const query = `
-		SELECT id, type, job_id, sequence, payload, message, created_at, topic, next_attempt_at
+		SELECT id, type, job_id, sequence, payload, message, created_at, topic, next_attempt_at, schedule_id, priority
 		FROM (
 			SELECT DISTINCT ON (job_id)
-				id, type, job_id, sequence, payload, message, created_at, topic, next_attempt_at
+				id, type, job_id, sequence, payload, message, created_at, topic, next_attempt_at, schedule_id, priority
 			FROM events
 			ORDER BY job_id, sequence DESC
 		) latest
@@ -164,7 +168,8 @@ func (s *Event) ListEventsByTopics(ctx context.Context, topics []string) ([]doma
 			type = @submitted
 			OR (type = @retried AND next_attempt_at <= now())
 		)
-		  AND (@topics::text[] IS NULL OR topic = ANY(@topics))`
+		  AND (@topics::text[] IS NULL OR topic = ANY(@topics))
+		ORDER BY priority DESC, created_at ASC` // priority first, then FIFO by arrival
 
 	rows, err := s.pool.Query(ctx, query, pgx.NamedArgs{
 		"submitted": domain.JobSubmitted,
@@ -202,6 +207,22 @@ func (s *Event) OrphanedRunning(ctx context.Context, grace time.Duration) ([]str
 		return nil, err
 	}
 	return pgx.CollectRows(rows, pgx.RowTo[string])
+}
+
+// FiresBySchedule returns the JobSubmitted events tagged with scheduleID (a schedule's fire
+// history), newest first.
+func (s *Event) FiresBySchedule(ctx context.Context, scheduleID string) ([]domain.Event, error) {
+	const query = `
+		SELECT id, type, job_id, sequence, payload, message, created_at, topic, next_attempt_at, schedule_id, priority
+		FROM events
+		WHERE type = $1 AND schedule_id = $2
+		ORDER BY created_at DESC`
+
+	rows, err := s.pool.Query(ctx, query, domain.JobSubmitted, scheduleID)
+	if err != nil {
+		return nil, err
+	}
+	return pgx.CollectRows(rows, pgx.RowToStructByPos[domain.Event])
 }
 
 // topicFilter normalizes an empty slice to nil so the SQL @topics::text[] IS NULL

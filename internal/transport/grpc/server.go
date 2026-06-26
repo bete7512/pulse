@@ -15,9 +15,10 @@ import (
 type Server struct {
 	pulsev1.UnimplementedPulseServiceServer
 	svc        service.JobService
+	schedules  service.ScheduleService
 	dispatcher *dispatcher
 }
 
-func New(svc service.JobService) *Server {
-	return &Server{svc: svc, dispatcher: newDispatcher(svc, dispatchInterval)}
+func New(svc service.JobService, schedules service.ScheduleService) *Server {
+	return &Server{svc: svc, schedules: schedules, dispatcher: newDispatcher(svc, dispatchInterval)}
 }

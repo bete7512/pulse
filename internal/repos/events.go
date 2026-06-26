@@ -23,4 +23,7 @@ type EventRepo interface {
 	// OrphanedRunning returns running jobs (latest event JobStarted) with no liveness row,
 	// started longer ago than grace — the watchdog's fallback for a failed liveness mark.
 	OrphanedRunning(ctx context.Context, grace time.Duration) ([]string, error)
+	// FiresBySchedule returns the JobSubmitted events a schedule spawned (its fire history),
+	// newest first — lineage from the schedule_id tag.
+	FiresBySchedule(ctx context.Context, scheduleID string) ([]domain.Event, error)
 }

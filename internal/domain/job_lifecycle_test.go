@@ -50,7 +50,7 @@ func TestJob_CompleteAndCancel(t *testing.T) {
 	}{
 		{"complete from running", domain.Running, domain.Job.Complete, false, domain.JobCompleted},
 		{"complete from pending rejected", domain.Pending, domain.Job.Complete, true, ""},
-		{"cancel from running", domain.Running, domain.Job.Cancel, false, domain.JOBCanceled},
+		{"cancel from running", domain.Running, domain.Job.Cancel, false, domain.JobCanceled},
 		{"cancel from terminal rejected", domain.Completed, domain.Job.Cancel, true, ""},
 	}
 	for _, tt := range tests {

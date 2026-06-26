@@ -27,7 +27,8 @@ const maxAttempts = 3
 
 type Job struct {
 	ID          string          `json:"id"`
-	Topic       string          `json:"topic"` // job topic, carried from the JobSubmitted event
+	Topic       string          `json:"topic"`    // job topic, carried from the JobSubmitted event
+	Priority    int             `json:"priority"` // dispatch priority, carried from the JobSubmitted event
 	Status      JobStatus       `json:"status"`
 	Attempts    int             `json:"attempts"` // number of times the job has been started
 	Payload     json.RawMessage `json:"payload"`
@@ -35,6 +36,7 @@ type Job struct {
 	SubmittedAt time.Time       `json:"submitted_at"`
 	StartedAt   *time.Time      `json:"started_at"`
 	CompletedAt *time.Time      `json:"completed_at"`
+	ScheduleID  *string         `json:"schedule_id"` // schedule that spawned this job; nil if submitted manually
 }
 
 func RebuildJob(events []Event) Job {
@@ -46,6 +48,8 @@ func RebuildJob(events []Event) Job {
 			job.SubmittedAt = event.CreatedAt
 			job.Payload = event.Payload
 			job.Topic = event.Topic
+			job.Priority = event.Priority     // dispatch order, fixed at submit
+			job.ScheduleID = event.ScheduleID // lineage: which schedule (if any) spawned this job
 		case JobStarted:
 			job.Status = Running
 			job.StartedAt = &event.CreatedAt
@@ -60,7 +64,7 @@ func RebuildJob(events []Event) Job {
 			job.Status = Retrying // dispatchable again
 		case JobDeadLettered:
 			job.Status = DeadLettered
-		case JOBCanceled:
+		case JobCanceled:
 			job.Status = Canceled
 			job.CompletedAt = &event.CreatedAt
 		default:
@@ -98,7 +102,7 @@ func (j Job) Cancel() (Event, error) {
 	if j.isTerminal() { // the invariant
 		return Event{}, ErrInvalidTransition // can't cancel an already finished job
 	}
-	return Event{JobId: j.ID, Type: JOBCanceled}, nil
+	return Event{JobId: j.ID, Type: JobCanceled}, nil
 }
 
 // Fail records a running job's failure and decides its fate: retry while attempts
