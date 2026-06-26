@@ -28,10 +28,11 @@ func (s *ServiceSuite) TestSubmit_AppendsJobSubmitted() {
 		func(_ context.Context, e domain.Event) (string, error) {
 			s.Equal(domain.JobSubmitted, e.Type)
 			s.Equal("send-email", e.Topic)
+			s.Equal(7, e.Priority) // priority is carried onto the event
 			return e.JobId, nil
 		})
 
-	id, err := s.svc().Submit(ctx(), "send-email", []byte(`{}`))
+	id, err := s.svc().Submit(ctx(), "send-email", []byte(`{}`), 7)
 	s.NoError(err)
 	s.NotEmpty(id)
 }

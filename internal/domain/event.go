@@ -33,4 +33,8 @@ type Event struct {
 	// manually-submitted job and every non-JobSubmitted event. It's a past fact ("submitted
 	// by schedule X"), so unlike NextAttemptAt it's fine to carry on the event log.
 	ScheduleID *string `json:"schedule_id"`
+	// Priority is a submit-time fact set on JobSubmitted (like Topic): higher dispatches
+	// sooner, ties broken by Sequence (FIFO). Default 0, so an un-annotated submit is
+	// unchanged. Carried onto the read model by the projector.
+	Priority int `json:"priority"`
 }

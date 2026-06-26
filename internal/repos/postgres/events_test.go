@@ -101,6 +101,26 @@ func (s *RepoSuite) TestEvent_ListEventsByTopics() {
 	s.Equal(jobA, got[0].JobId)
 }
 
+// TestEvent_ListEventsByTopics_OrdersByPriorityThenFIFO proves the dispatch contract:
+// the head query returns higher priority first, and ties break by sequence (arrival/FIFO).
+// jobB is appended first but at priority 0; jobA and jobC share priority 5 — so the order
+// must be A, C (both priority 5, A arrived before C), then B.
+func (s *RepoSuite) TestEvent_ListEventsByTopics_OrdersByPriorityThenFIFO() {
+	event := postgres.NewEvent(s.pool)
+	_, err := event.Append(bg(), domain.Event{JobId: jobB, Type: domain.JobSubmitted, Topic: "email", Priority: 0})
+	s.Require().NoError(err)
+	_, err = event.Append(bg(), domain.Event{JobId: jobA, Type: domain.JobSubmitted, Topic: "email", Priority: 5})
+	s.Require().NoError(err)
+	_, err = event.Append(bg(), domain.Event{JobId: jobC, Type: domain.JobSubmitted, Topic: "email", Priority: 5})
+	s.Require().NoError(err)
+
+	got, err := event.ListEventsByTopics(bg(), []string{"email"})
+	s.Require().NoError(err)
+	s.Require().Len(got, 3)
+	s.Equal([]string{jobA, jobC, jobB}, []string{got[0].JobId, got[1].JobId, got[2].JobId})
+	s.Equal(5, got[0].Priority) // priority round-trips through the store
+}
+
 func (s *RepoSuite) TestEvent_OrphanedRunning() {
 	event := postgres.NewEvent(s.pool)
 	// a Running job (submitted + started) with NO liveness row.

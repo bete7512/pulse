@@ -37,6 +37,10 @@ are all internal to the server.
   multi-instance**, reusing the same `UNIQUE(job_id, sequence)` invariant. Spawned jobs are
   ordinary jobs tagged with `schedule_id`, so you get full lineage (which jobs a schedule produced,
   when it fired).
+- **Priority dispatch.** A job can be submitted with a priority (`WithPriority(n)`, default 0);
+  the dispatch head-scan orders `priority DESC, created_at ASC` — higher priority first, ties broken
+  by arrival (FIFO). Priority is a submit-time *fact* on `JobSubmitted` (like topic), fully
+  backward-compatible, and backed by a partial index so the planner needn't sort the pending set.
 
 ---
 
@@ -70,6 +74,9 @@ pulse.Register(p, "send-email", func(ctx context.Context, a EmailArgs) error {
 
 // enqueue a job by name:
 pulse.Enqueue(ctx, p, "send-email", EmailArgs{To: "a@b.com", Subject: "Welcome"})
+
+// ...or jump the queue with a higher priority (default 0):
+pulse.Enqueue(ctx, p, "send-email", EmailArgs{To: "vip@b.com"}, pulse.WithPriority(10))
 
 p.Run(ctx)        // process jobs until ctx is cancelled
 ```

@@ -88,6 +88,18 @@ func TestRebuildJob(t *testing.T) {
 			},
 		},
 		{
+			name: "priority is carried from submit and survives later events",
+			input: []domain.Event{
+				{JobId: "j", Type: domain.JobSubmitted, Topic: "send-email", Priority: 5, CreatedAt: startingTime},
+				{JobId: "j", Type: domain.JobStarted, CreatedAt: startingTime}, // no priority on later events
+				{JobId: "j", Type: domain.JobCompleted, CreatedAt: startingTime},
+			},
+			want: &domain.Job{
+				ID: "j", Topic: "send-email", Priority: 5, Status: domain.Completed, Attempts: 1,
+				SubmittedAt: startingTime, StartedAt: &startingTime, CompletedAt: &startingTime,
+			},
+		},
+		{
 			name: "retry then dead-letter keeps last failure reason",
 			input: []domain.Event{
 				{JobId: "j", Type: domain.JobSubmitted, CreatedAt: startingTime},

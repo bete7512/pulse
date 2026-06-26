@@ -21,7 +21,7 @@ const maxTransitionRetries = 3
 // managing liveness). Every state change funnels through the event log: transition folds
 // the aggregate from the authoritative log, applies the invariant, and appends atomically.
 type JobWriter interface {
-	Submit(ctx context.Context, topic string, payload []byte) (string, error)
+	Submit(ctx context.Context, topic string, payload []byte, priority int) (string, error)
 	StartJob(ctx context.Context, jobID, workerID string) error
 	CompleteJob(ctx context.Context, jobID string) error
 	CancelJob(ctx context.Context, jobID string) error
@@ -29,16 +29,17 @@ type JobWriter interface {
 	Heartbeat(ctx context.Context, jobID, workerID string) error
 }
 
-func (s *jobService) Submit(ctx context.Context, topic string, payload []byte) (string, error) {
+func (s *jobService) Submit(ctx context.Context, topic string, payload []byte, priority int) (string, error) {
 	jobId, err := uuid.NewV7()
 	if err != nil {
 		return "", err
 	}
 	return s.events.Append(ctx, domain.Event{
-		JobId:   jobId.String(),
-		Topic:   topic,
-		Payload: payload,
-		Type:    domain.JobSubmitted,
+		JobId:    jobId.String(),
+		Topic:    topic,
+		Payload:  payload,
+		Priority: priority,
+		Type:     domain.JobSubmitted,
 	})
 }
 

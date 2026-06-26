@@ -27,6 +27,7 @@ type SubmitJobRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Topic         string                 `protobuf:"bytes,1,opt,name=topic,proto3" json:"topic,omitempty"`
 	Payload       []byte                 `protobuf:"bytes,2,opt,name=payload,proto3" json:"payload,omitempty"`
+	Priority      int32                  `protobuf:"varint,3,opt,name=priority,proto3" json:"priority,omitempty"` // dispatch priority; higher runs first, default 0
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -73,6 +74,13 @@ func (x *SubmitJobRequest) GetPayload() []byte {
 		return x.Payload
 	}
 	return nil
+}
+
+func (x *SubmitJobRequest) GetPriority() int32 {
+	if x != nil {
+		return x.Priority
+	}
+	return 0
 }
 
 type SubmitJobResponse struct {
@@ -361,6 +369,7 @@ type JobAssignment struct {
 	Topic         string                 `protobuf:"bytes,2,opt,name=topic,proto3" json:"topic,omitempty"`
 	Payload       []byte                 `protobuf:"bytes,3,opt,name=payload,proto3" json:"payload,omitempty"`
 	Attempt       int32                  `protobuf:"varint,4,opt,name=attempt,proto3" json:"attempt,omitempty"`
+	Priority      int32                  `protobuf:"varint,5,opt,name=priority,proto3" json:"priority,omitempty"` // the job's dispatch priority (informational for the worker)
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -419,6 +428,13 @@ func (x *JobAssignment) GetPayload() []byte {
 func (x *JobAssignment) GetAttempt() int32 {
 	if x != nil {
 		return x.Attempt
+	}
+	return 0
+}
+
+func (x *JobAssignment) GetPriority() int32 {
+	if x != nil {
+		return x.Priority
 	}
 	return 0
 }
@@ -1425,10 +1441,11 @@ var File_pulse_v1_pulse_proto protoreflect.FileDescriptor
 
 const file_pulse_v1_pulse_proto_rawDesc = "" +
 	"\n" +
-	"\x14pulse/v1/pulse.proto\x12\bpulse.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\"B\n" +
+	"\x14pulse/v1/pulse.proto\x12\bpulse.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\"^\n" +
 	"\x10SubmitJobRequest\x12\x14\n" +
 	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x18\n" +
-	"\apayload\x18\x02 \x01(\fR\apayload\"*\n" +
+	"\apayload\x18\x02 \x01(\fR\apayload\x12\x1a\n" +
+	"\bpriority\x18\x03 \x01(\x05R\bpriority\"*\n" +
 	"\x11SubmitJobResponse\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\"&\n" +
 	"\rGetJobRequest\x12\x15\n" +
@@ -1444,12 +1461,13 @@ const file_pulse_v1_pulse_proto_rawDesc = "" +
 	"\x12StreamJobsResponse\x127\n" +
 	"\n" +
 	"assignment\x18\x01 \x01(\v2\x17.pulse.v1.JobAssignmentR\n" +
-	"assignment\"p\n" +
+	"assignment\"\x8c\x01\n" +
 	"\rJobAssignment\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x14\n" +
 	"\x05topic\x18\x02 \x01(\tR\x05topic\x12\x18\n" +
 	"\apayload\x18\x03 \x01(\fR\apayload\x12\x18\n" +
-	"\aattempt\x18\x04 \x01(\x05R\aattempt\"\\\n" +
+	"\aattempt\x18\x04 \x01(\x05R\aattempt\x12\x1a\n" +
+	"\bpriority\x18\x05 \x01(\x05R\bpriority\"\\\n" +
 	"\x13ReportResultRequest\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x12\x18\n" +
 	"\asuccess\x18\x02 \x01(\bR\asuccess\x12\x14\n" +

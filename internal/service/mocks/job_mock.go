@@ -157,16 +157,16 @@ func (mr *MockJobServiceMockRecorder) StartJob(ctx, jobID, workerID any) *gomock
 }
 
 // Submit mocks base method.
-func (m *MockJobService) Submit(ctx context.Context, topic string, payload []byte) (string, error) {
+func (m *MockJobService) Submit(ctx context.Context, topic string, payload []byte, priority int) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Submit", ctx, topic, payload)
+	ret := m.ctrl.Call(m, "Submit", ctx, topic, payload, priority)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Submit indicates an expected call of Submit.
-func (mr *MockJobServiceMockRecorder) Submit(ctx, topic, payload any) *gomock.Call {
+func (mr *MockJobServiceMockRecorder) Submit(ctx, topic, payload, priority any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Submit", reflect.TypeOf((*MockJobService)(nil).Submit), ctx, topic, payload)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Submit", reflect.TypeOf((*MockJobService)(nil).Submit), ctx, topic, payload, priority)
 }

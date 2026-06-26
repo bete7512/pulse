@@ -3,6 +3,8 @@ package pulse
 import (
 	"context"
 	"encoding/json"
+
+	"github.com/bete7512/pulse/gen/pulsev1"
 )
 
 // Job is the raw view a low-level handler receives. Most code never touches it —
@@ -38,13 +40,24 @@ func Register[T any](c *Client, name string, fn func(context.Context, T) error) 
 	})
 }
 
+// SubmitOption configures a job submission. The only option today is WithPriority.
+type SubmitOption func(*pulsev1.SubmitJobRequest)
+
+// WithPriority sets a job's dispatch priority: higher runs before lower on the same
+// topic, ties broken by arrival (FIFO). Default 0; negative values de-prioritize.
+//
+//	pulse.Enqueue(ctx, p, "send-email", args, pulse.WithPriority(10))
+func WithPriority(p int) SubmitOption {
+	return func(r *pulsev1.SubmitJobRequest) { r.Priority = int32(p) }
+}
+
 // Enqueue submits a job under name, JSON-encoding args. Mirror of Register.
 //
 //	pulse.Enqueue(ctx, p, "send-email", EmailArgs{To: "a@b.com"})
-func Enqueue[T any](ctx context.Context, c *Client, name string, args T) (string, error) {
+func Enqueue[T any](ctx context.Context, c *Client, name string, args T, opts ...SubmitOption) (string, error) {
 	b, err := json.Marshal(args)
 	if err != nil {
 		return "", err
 	}
-	return c.Submit(ctx, name, b)
+	return c.Submit(ctx, name, b, opts...)
 }

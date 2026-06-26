@@ -7,15 +7,15 @@ import (
 )
 
 func (s *ServerSuite) TestSubmitJob() {
-	s.svc.EXPECT().Submit(gomock.Any(), "email", []byte(`{}`)).Return("job-1", nil)
+	s.svc.EXPECT().Submit(gomock.Any(), "email", []byte(`{}`), 7).Return("job-1", nil)
 
-	resp, err := s.srv.SubmitJob(ctx(), &pulsev1.SubmitJobRequest{Topic: "email", Payload: []byte(`{}`)})
+	resp, err := s.srv.SubmitJob(ctx(), &pulsev1.SubmitJobRequest{Topic: "email", Payload: []byte(`{}`), Priority: 7})
 	s.NoError(err)
 	s.Equal("job-1", resp.JobId)
 }
 
 func (s *ServerSuite) TestSubmitJob_PropagatesError() {
-	s.svc.EXPECT().Submit(gomock.Any(), "email", gomock.AssignableToTypeOf([]byte(nil))).Return("", errBoom)
+	s.svc.EXPECT().Submit(gomock.Any(), "email", gomock.AssignableToTypeOf([]byte(nil)), 0).Return("", errBoom)
 
 	_, err := s.srv.SubmitJob(ctx(), &pulsev1.SubmitJobRequest{Topic: "email"})
 	s.ErrorIs(err, errBoom)

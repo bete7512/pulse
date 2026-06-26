@@ -8,7 +8,7 @@ import (
 
 // SubmitJob enqueues a job under a topic (producer side).
 func (s *Server) SubmitJob(ctx context.Context, r *pulsev1.SubmitJobRequest) (*pulsev1.SubmitJobResponse, error) {
-	id, err := s.svc.Submit(ctx, r.Topic, r.Payload)
+	id, err := s.svc.Submit(ctx, r.Topic, r.Payload, int(r.Priority))
 	if err != nil {
 		return nil, err
 	}

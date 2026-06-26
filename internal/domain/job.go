@@ -27,7 +27,8 @@ const maxAttempts = 3
 
 type Job struct {
 	ID          string          `json:"id"`
-	Topic       string          `json:"topic"` // job topic, carried from the JobSubmitted event
+	Topic       string          `json:"topic"`    // job topic, carried from the JobSubmitted event
+	Priority    int             `json:"priority"` // dispatch priority, carried from the JobSubmitted event
 	Status      JobStatus       `json:"status"`
 	Attempts    int             `json:"attempts"` // number of times the job has been started
 	Payload     json.RawMessage `json:"payload"`
@@ -47,6 +48,7 @@ func RebuildJob(events []Event) Job {
 			job.SubmittedAt = event.CreatedAt
 			job.Payload = event.Payload
 			job.Topic = event.Topic
+			job.Priority = event.Priority     // dispatch order, fixed at submit
 			job.ScheduleID = event.ScheduleID // lineage: which schedule (if any) spawned this job
 		case JobStarted:
 			job.Status = Running
