@@ -60,7 +60,7 @@ func RebuildJob(events []Event) Job {
 			job.Status = Retrying // dispatchable again
 		case JobDeadLettered:
 			job.Status = DeadLettered
-		case JOBCanceled:
+		case JobCanceled:
 			job.Status = Canceled
 			job.CompletedAt = &event.CreatedAt
 		default:
@@ -98,7 +98,7 @@ func (j Job) Cancel() (Event, error) {
 	if j.isTerminal() { // the invariant
 		return Event{}, ErrInvalidTransition // can't cancel an already finished job
 	}
-	return Event{JobId: j.ID, Type: JOBCanceled}, nil
+	return Event{JobId: j.ID, Type: JobCanceled}, nil
 }
 
 // Fail records a running job's failure and decides its fate: retry while attempts

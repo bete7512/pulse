@@ -14,7 +14,7 @@ const (
 	JobFailed       EventType = "JOB_FAILED"
 	JobRetried      EventType = "JOB_RETRIED"
 	JobDeadLettered EventType = "JOB_DEAD_LETTERED"
-	JOBCanceled     EventType = "JOB_CANCELED"
+	JobCanceled     EventType = "JOB_CANCELED"
 )
 
 type Event struct {

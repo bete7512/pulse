@@ -68,15 +68,6 @@ func (s *ServiceSuite) TestListPendingJobsByTopics_FoldsEachJob() {
 	s.Equal(domain.Pending, jobs[0].Status)
 }
 
-func (s *ServiceSuite) TestGetJobForDispatch_Folds() {
-	s.events.EXPECT().LoadEventsForJob(gomock.Any(), "j").
-		Return([]domain.Event{{JobId: "j", Type: domain.JobSubmitted}, {JobId: "j", Type: domain.JobStarted}}, nil)
-
-	job, err := s.svc().GetJobForDispatch(ctx(), "j")
-	s.NoError(err)
-	s.Equal(domain.Running, job.Status)
-}
-
 func (s *ServiceSuite) TestStartJob_RetriesOnConflict() {
 	pending := []domain.Event{{JobId: "j", Type: domain.JobSubmitted}}
 	s.events.EXPECT().LoadEventsForJob(gomock.Any(), "j").Return(pending, nil).Times(2) // initial + retry
@@ -118,7 +109,7 @@ func (s *ServiceSuite) TestEndRun_AppendsTerminalEventAndClearsLiveness() {
 			name:     "cancel a pending job",
 			stream:   []domain.Event{{JobId: "j", Type: domain.JobSubmitted}},
 			call:     func(svc service.JobService) error { return svc.CancelJob(ctx(), "j") },
-			wantType: domain.JOBCanceled,
+			wantType: domain.JobCanceled,
 		},
 	}
 	for _, tc := range cases {
