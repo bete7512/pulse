@@ -12,6 +12,9 @@ import (
 type JobRepo interface {
 	GetJob(ctx context.Context, jobID string) (*domain.Job, error)
 	ListJobs(ctx context.Context) ([]domain.Job, error)
+	// JobsBySchedule returns the jobs a schedule spawned (newest first) — lineage from the
+	// schedule_id tag the projector copied onto the read model.
+	JobsBySchedule(ctx context.Context, scheduleID string) ([]domain.Job, error)
 }
 
 // ProjectionRepo is the write side of the jobs projection, used by the projector to

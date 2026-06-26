@@ -29,4 +29,8 @@ type Event struct {
 	// NextAttemptAt is set only on JobRetried events: the earliest time the job
 	// becomes dispatchable again (backoff). nil for every other event type.
 	NextAttemptAt *time.Time `json:"next_attempt_at"`
+	// ScheduleID links a JobSubmitted to the schedule that spawned it (lineage). nil for a
+	// manually-submitted job and every non-JobSubmitted event. It's a past fact ("submitted
+	// by schedule X"), so unlike NextAttemptAt it's fine to carry on the event log.
+	ScheduleID *string `json:"schedule_id"`
 }

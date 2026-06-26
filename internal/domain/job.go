@@ -35,6 +35,7 @@ type Job struct {
 	SubmittedAt time.Time       `json:"submitted_at"`
 	StartedAt   *time.Time      `json:"started_at"`
 	CompletedAt *time.Time      `json:"completed_at"`
+	ScheduleID  *string         `json:"schedule_id"` // schedule that spawned this job; nil if submitted manually
 }
 
 func RebuildJob(events []Event) Job {
@@ -46,6 +47,7 @@ func RebuildJob(events []Event) Job {
 			job.SubmittedAt = event.CreatedAt
 			job.Payload = event.Payload
 			job.Topic = event.Topic
+			job.ScheduleID = event.ScheduleID // lineage: which schedule (if any) spawned this job
 		case JobStarted:
 			job.Status = Running
 			job.StartedAt = &event.CreatedAt

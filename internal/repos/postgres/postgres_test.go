@@ -42,7 +42,7 @@ func (s *RepoSuite) SetupTest() {
 	if s.pool == nil {
 		s.T().Skip("TEST_DB_URL not set — skipping Postgres integration tests")
 	}
-	_, err := s.pool.Exec(bg(), `TRUNCATE events, jobs, liveness`)
+	_, err := s.pool.Exec(bg(), `TRUNCATE events, jobs, liveness, schedules`)
 	s.Require().NoError(err, "truncate (did you run migrations on the test DB?)")
 }
 

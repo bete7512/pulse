@@ -19,9 +19,10 @@ var errBoom = errors.New("boom")
 // thin handlers and the dispatch policy are both exercised against a mocked application layer.
 type ServerSuite struct {
 	suite.Suite
-	ctrl *gomock.Controller
-	svc  *servicemocks.MockJobService
-	srv  *grpcserver.Server
+	ctrl      *gomock.Controller
+	svc       *servicemocks.MockJobService
+	schedules *servicemocks.MockScheduleService
+	srv       *grpcserver.Server
 }
 
 func TestServerSuite(t *testing.T) { suite.Run(t, new(ServerSuite)) }
@@ -29,7 +30,8 @@ func TestServerSuite(t *testing.T) { suite.Run(t, new(ServerSuite)) }
 func (s *ServerSuite) SetupTest() {
 	s.ctrl = gomock.NewController(s.T())
 	s.svc = servicemocks.NewMockJobService(s.ctrl)
-	s.srv = grpcserver.New(s.svc)
+	s.schedules = servicemocks.NewMockScheduleService(s.ctrl)
+	s.srv = grpcserver.New(s.svc, s.schedules)
 }
 
 func ctx() context.Context { return context.Background() }
