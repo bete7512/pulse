@@ -21,6 +21,7 @@ type ServiceSuite struct {
 	live      *reposmocks.MockLivenessRepo
 	proj      *reposmocks.MockProjectionRepo
 	schedules *reposmocks.MockScheduleRepo
+	dispatch  *reposmocks.MockDispatchControlRepo
 }
 
 func TestServiceSuite(t *testing.T) { suite.Run(t, new(ServiceSuite)) }
@@ -32,6 +33,7 @@ func (s *ServiceSuite) SetupTest() {
 	s.live = reposmocks.NewMockLivenessRepo(s.ctrl)
 	s.proj = reposmocks.NewMockProjectionRepo(s.ctrl)
 	s.schedules = reposmocks.NewMockScheduleRepo(s.ctrl)
+	s.dispatch = reposmocks.NewMockDispatchControlRepo(s.ctrl)
 }
 
 func ctx() context.Context { return context.Background() }

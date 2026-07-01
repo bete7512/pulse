@@ -31,6 +31,9 @@ const (
 	PulseService_ListSchedules_FullMethodName     = "/pulse.v1.PulseService/ListSchedules"
 	PulseService_ListScheduleJobs_FullMethodName  = "/pulse.v1.PulseService/ListScheduleJobs"
 	PulseService_ListScheduleFires_FullMethodName = "/pulse.v1.PulseService/ListScheduleFires"
+	PulseService_PauseDispatch_FullMethodName     = "/pulse.v1.PulseService/PauseDispatch"
+	PulseService_ResumeDispatch_FullMethodName    = "/pulse.v1.PulseService/ResumeDispatch"
+	PulseService_GetDispatchStatus_FullMethodName = "/pulse.v1.PulseService/GetDispatchStatus"
 )
 
 // PulseServiceClient is the client API for PulseService service.
@@ -50,6 +53,10 @@ type PulseServiceClient interface {
 	ListSchedules(ctx context.Context, in *ListSchedulesRequest, opts ...grpc.CallOption) (*ListSchedulesResponse, error)
 	ListScheduleJobs(ctx context.Context, in *ListScheduleJobsRequest, opts ...grpc.CallOption) (*ListScheduleJobsResponse, error)
 	ListScheduleFires(ctx context.Context, in *ListScheduleFiresRequest, opts ...grpc.CallOption) (*ListScheduleFiresResponse, error)
+	// dispatch pause (admin)
+	PauseDispatch(ctx context.Context, in *PauseDispatchRequest, opts ...grpc.CallOption) (*PauseDispatchResponse, error)
+	ResumeDispatch(ctx context.Context, in *ResumeDispatchRequest, opts ...grpc.CallOption) (*ResumeDispatchResponse, error)
+	GetDispatchStatus(ctx context.Context, in *GetDispatchStatusRequest, opts ...grpc.CallOption) (*GetDispatchStatusResponse, error)
 }
 
 type pulseServiceClient struct {
@@ -189,6 +196,36 @@ func (c *pulseServiceClient) ListScheduleFires(ctx context.Context, in *ListSche
 	return out, nil
 }
 
+func (c *pulseServiceClient) PauseDispatch(ctx context.Context, in *PauseDispatchRequest, opts ...grpc.CallOption) (*PauseDispatchResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PauseDispatchResponse)
+	err := c.cc.Invoke(ctx, PulseService_PauseDispatch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pulseServiceClient) ResumeDispatch(ctx context.Context, in *ResumeDispatchRequest, opts ...grpc.CallOption) (*ResumeDispatchResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResumeDispatchResponse)
+	err := c.cc.Invoke(ctx, PulseService_ResumeDispatch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pulseServiceClient) GetDispatchStatus(ctx context.Context, in *GetDispatchStatusRequest, opts ...grpc.CallOption) (*GetDispatchStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDispatchStatusResponse)
+	err := c.cc.Invoke(ctx, PulseService_GetDispatchStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PulseServiceServer is the server API for PulseService service.
 // All implementations must embed UnimplementedPulseServiceServer
 // for forward compatibility.
@@ -206,6 +243,10 @@ type PulseServiceServer interface {
 	ListSchedules(context.Context, *ListSchedulesRequest) (*ListSchedulesResponse, error)
 	ListScheduleJobs(context.Context, *ListScheduleJobsRequest) (*ListScheduleJobsResponse, error)
 	ListScheduleFires(context.Context, *ListScheduleFiresRequest) (*ListScheduleFiresResponse, error)
+	// dispatch pause (admin)
+	PauseDispatch(context.Context, *PauseDispatchRequest) (*PauseDispatchResponse, error)
+	ResumeDispatch(context.Context, *ResumeDispatchRequest) (*ResumeDispatchResponse, error)
+	GetDispatchStatus(context.Context, *GetDispatchStatusRequest) (*GetDispatchStatusResponse, error)
 	mustEmbedUnimplementedPulseServiceServer()
 }
 
@@ -251,6 +292,15 @@ func (UnimplementedPulseServiceServer) ListScheduleJobs(context.Context, *ListSc
 }
 func (UnimplementedPulseServiceServer) ListScheduleFires(context.Context, *ListScheduleFiresRequest) (*ListScheduleFiresResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListScheduleFires not implemented")
+}
+func (UnimplementedPulseServiceServer) PauseDispatch(context.Context, *PauseDispatchRequest) (*PauseDispatchResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PauseDispatch not implemented")
+}
+func (UnimplementedPulseServiceServer) ResumeDispatch(context.Context, *ResumeDispatchRequest) (*ResumeDispatchResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ResumeDispatch not implemented")
+}
+func (UnimplementedPulseServiceServer) GetDispatchStatus(context.Context, *GetDispatchStatusRequest) (*GetDispatchStatusResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetDispatchStatus not implemented")
 }
 func (UnimplementedPulseServiceServer) mustEmbedUnimplementedPulseServiceServer() {}
 func (UnimplementedPulseServiceServer) testEmbeddedByValue()                      {}
@@ -482,6 +532,60 @@ func _PulseService_ListScheduleFires_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PulseService_PauseDispatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PauseDispatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PulseServiceServer).PauseDispatch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PulseService_PauseDispatch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PulseServiceServer).PauseDispatch(ctx, req.(*PauseDispatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PulseService_ResumeDispatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResumeDispatchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PulseServiceServer).ResumeDispatch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PulseService_ResumeDispatch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PulseServiceServer).ResumeDispatch(ctx, req.(*ResumeDispatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PulseService_GetDispatchStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDispatchStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PulseServiceServer).GetDispatchStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PulseService_GetDispatchStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PulseServiceServer).GetDispatchStatus(ctx, req.(*GetDispatchStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PulseService_ServiceDesc is the grpc.ServiceDesc for PulseService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -532,6 +636,18 @@ var PulseService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListScheduleFires",
 			Handler:    _PulseService_ListScheduleFires_Handler,
+		},
+		{
+			MethodName: "PauseDispatch",
+			Handler:    _PulseService_PauseDispatch_Handler,
+		},
+		{
+			MethodName: "ResumeDispatch",
+			Handler:    _PulseService_ResumeDispatch_Handler,
+		},
+		{
+			MethodName: "GetDispatchStatus",
+			Handler:    _PulseService_GetDispatchStatus_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

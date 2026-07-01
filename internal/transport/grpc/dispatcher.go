@@ -22,6 +22,7 @@ type assignmentSink func(*pulsev1.JobAssignment) error
 type dispatcher struct {
 	svc      service.JobService
 	interval time.Duration
+	gate     *service.DispatchGate // nil = open (never paused)
 }
 
 func newDispatcher(svc service.JobService, interval time.Duration) *dispatcher {
@@ -49,6 +50,9 @@ func (d *dispatcher) run(ctx context.Context, topics []string, workerID string, 
 // claim races are skipped (retry next tick / another worker won the job); only a sink error
 // — the stream itself failing — is returned, which ends the loop.
 func (d *dispatcher) dispatchReady(ctx context.Context, topics []string, workerID string, sink assignmentSink) error {
+	if d.gate.Paused() {
+		return nil // paused: claim/send nothing. Submits still land; running jobs still finish.
+	}
 	jobs, err := d.svc.ListPendingJobsByTopics(ctx, topics)
 	if err != nil {
 		return nil // transient poll failure: don't kill the stream, just retry next tick

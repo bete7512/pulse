@@ -20,6 +20,22 @@ service PulseService {
   rpc ListSchedules     (ListSchedulesRequest)     returns (ListSchedulesResponse);
   rpc ListScheduleJobs  (ListScheduleJobsRequest)  returns (ListScheduleJobsResponse);
   rpc ListScheduleFires (ListScheduleFiresRequest) returns (ListScheduleFiresResponse);
+
+  // dispatch pause (admin)
+  rpc PauseDispatch     (PauseDispatchRequest)     returns (PauseDispatchResponse);
+  rpc ResumeDispatch    (ResumeDispatchRequest)    returns (ResumeDispatchResponse);
+  rpc GetDispatchStatus (GetDispatchStatusRequest) returns (GetDispatchStatusResponse);
+}
+
+message PauseDispatchRequest      { string reason = 1; } // optional operator note
+message PauseDispatchResponse     {}
+message ResumeDispatchRequest     {}
+message ResumeDispatchResponse    {}
+message GetDispatchStatusRequest  {}
+message GetDispatchStatusResponse {
+  bool                      paused    = 1;
+  string                    reason    = 2;
+  google.protobuf.Timestamp paused_at = 3;
 }
 
 message SubmitJobRequest  {

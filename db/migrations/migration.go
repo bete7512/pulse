@@ -66,4 +66,5 @@ func (s *migrationService) registerMigrations() {
 	s.registerMigration_0005CreateLiveness()
 	s.registerMigration_0006AddSchedules()
 	s.registerMigration_0007AddPriority()
+	s.registerMigration_0008AddDispatchControl()
 }

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	grpcserver "github.com/bete7512/pulse/internal/transport/grpc"
 	servicemocks "github.com/bete7512/pulse/internal/service/mocks"
+	grpcserver "github.com/bete7512/pulse/internal/transport/grpc"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
 )
@@ -22,6 +22,7 @@ type ServerSuite struct {
 	ctrl      *gomock.Controller
 	svc       *servicemocks.MockJobService
 	schedules *servicemocks.MockScheduleService
+	pause     *servicemocks.MockPauseControlService
 	srv       *grpcserver.Server
 }
 
@@ -31,7 +32,8 @@ func (s *ServerSuite) SetupTest() {
 	s.ctrl = gomock.NewController(s.T())
 	s.svc = servicemocks.NewMockJobService(s.ctrl)
 	s.schedules = servicemocks.NewMockScheduleService(s.ctrl)
-	s.srv = grpcserver.New(s.svc, s.schedules)
+	s.pause = servicemocks.NewMockPauseControlService(s.ctrl)
+	s.srv = grpcserver.New(s.svc, s.schedules, grpcserver.WithPauseControl(s.pause))
 }
 
 func ctx() context.Context { return context.Background() }

@@ -31,7 +31,8 @@ const bufSize = 1024 * 1024
 func (s *ServerSuite) dial(interval time.Duration) pulsev1.PulseServiceClient {
 	lis := bufconn.Listen(bufSize)
 	gs := grpc.NewServer(grpcserver.ServerOptions()...)
-	pulsev1.RegisterPulseServiceServer(gs, grpcserver.New(s.svc, s.schedules, grpcserver.WithDispatchInterval(interval)))
+	pulsev1.RegisterPulseServiceServer(gs, grpcserver.New(s.svc, s.schedules,
+		grpcserver.WithDispatchInterval(interval), grpcserver.WithPauseControl(s.pause)))
 	go func() { _ = gs.Serve(lis) }()
 
 	conn, err := grpc.NewClient(

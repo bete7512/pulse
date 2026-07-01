@@ -24,10 +24,11 @@ import (
 )
 
 const (
-	grpcAddr         = ":50051"
-	projectInterval  = 500 * time.Millisecond
-	scheduleInterval = 1 * time.Second // how often the scheduler checks for due schedules
-	shutdownTimeout  = 5 * time.Second
+	grpcAddr             = ":50051"
+	projectInterval      = 500 * time.Millisecond
+	scheduleInterval     = 1 * time.Second // how often the scheduler checks for due schedules
+	pauseRefreshInterval = 1 * time.Second // how often each instance reconciles its dispatch gate to the durable row
+	shutdownTimeout      = 5 * time.Second
 
 	// liveness/watchdog: a worker renews its liveness via heartbeats while running; if
 	// it expires (TTL passed) the watchdog re-dispatches the job. livenessTTL should be
@@ -76,11 +77,23 @@ func run() error {
 		log.Fatalf("failed to run migrate command %v", err)
 	}
 	svc, proj, wd, sched, scheduleAdmin := buildServices(db, logger)
+
+	// Dispatch pause: one in-memory gate is the dispatcher's fast read; dispatch_control is the
+	// durable truth. Prime the gate from the row BEFORE serving so a pause set before a restart
+	// survives it (fail-safe: refuse to start if the state can't be read). The refresh loop then
+	// keeps this instance's gate converged on the row.
+	gate := service.NewDispatchGate()
+	pauseCtl := service.NewPauseControl(postgres.NewDispatchControl(db), gate, pauseRefreshInterval, logger)
+	if err := pauseCtl.Prime(ctx); err != nil {
+		return fmt.Errorf("prime dispatch gate: %w", err)
+	}
+
 	go proj.Run(ctx)
 	go wd.Run(ctx)
 	go sched.Run(ctx)
+	go pauseCtl.Run(ctx)
 
-	gs, err := serveGRPC(svc, scheduleAdmin, logger)
+	gs, err := serveGRPC(svc, scheduleAdmin, gate, pauseCtl, logger)
 	if err != nil {
 		return err
 	}
@@ -115,13 +128,14 @@ func buildServices(db *pgxpool.Pool, logger *slog.Logger) (service.JobService, s
 
 // serveGRPC registers the Pulse service and starts serving in the background,
 // returning the server so the caller can shut it down.
-func serveGRPC(svc service.JobService, scheduleAdmin service.ScheduleService, logger *slog.Logger) (*grpc.Server, error) {
+func serveGRPC(svc service.JobService, scheduleAdmin service.ScheduleService, gate *service.DispatchGate, pauseCtl service.PauseControlService, logger *slog.Logger) (*grpc.Server, error) {
 	lis, err := net.Listen("tcp", grpcAddr)
 	if err != nil {
 		return nil, fmt.Errorf("listen %s: %w", grpcAddr, err)
 	}
 	gs := grpc.NewServer(grpcserver.ServerOptions()...)
-	pulsev1.RegisterPulseServiceServer(gs, grpcserver.New(svc, scheduleAdmin))
+	pulsev1.RegisterPulseServiceServer(gs, grpcserver.New(svc, scheduleAdmin,
+		grpcserver.WithGate(gate), grpcserver.WithPauseControl(pauseCtl)))
 
 	go func() {
 		if err := gs.Serve(lis); err != nil && !errors.Is(err, grpc.ErrServerStopped) {

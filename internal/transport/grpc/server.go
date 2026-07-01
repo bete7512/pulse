@@ -18,6 +18,7 @@ type Server struct {
 	pulsev1.UnimplementedPulseServiceServer
 	svc        service.JobService
 	schedules  service.ScheduleService
+	pause      service.PauseControlService
 	dispatcher *dispatcher
 }
 
@@ -28,6 +29,16 @@ type Option func(*Server)
 // so a StreamJobs round-trip doesn't wait the production 500ms for the first tick.
 func WithDispatchInterval(d time.Duration) Option {
 	return func(s *Server) { s.dispatcher.interval = d }
+}
+
+// WithGate wires the dispatch pause gate the dispatcher reads each tick.
+func WithGate(g *service.DispatchGate) Option {
+	return func(s *Server) { s.dispatcher.gate = g }
+}
+
+// WithPauseControl wires the service behind the Pause/Resume/GetDispatchStatus handlers.
+func WithPauseControl(p service.PauseControlService) Option {
+	return func(s *Server) { s.pause = p }
 }
 
 func New(svc service.JobService, schedules service.ScheduleService, opts ...Option) *Server {

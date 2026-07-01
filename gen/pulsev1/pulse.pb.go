@@ -23,6 +23,254 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type PauseDispatchRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Reason        string                 `protobuf:"bytes,1,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PauseDispatchRequest) Reset() {
+	*x = PauseDispatchRequest{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PauseDispatchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PauseDispatchRequest) ProtoMessage() {}
+
+func (x *PauseDispatchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PauseDispatchRequest.ProtoReflect.Descriptor instead.
+func (*PauseDispatchRequest) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PauseDispatchRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+type PauseDispatchResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PauseDispatchResponse) Reset() {
+	*x = PauseDispatchResponse{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PauseDispatchResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PauseDispatchResponse) ProtoMessage() {}
+
+func (x *PauseDispatchResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PauseDispatchResponse.ProtoReflect.Descriptor instead.
+func (*PauseDispatchResponse) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{1}
+}
+
+type ResumeDispatchRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResumeDispatchRequest) Reset() {
+	*x = ResumeDispatchRequest{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResumeDispatchRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResumeDispatchRequest) ProtoMessage() {}
+
+func (x *ResumeDispatchRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResumeDispatchRequest.ProtoReflect.Descriptor instead.
+func (*ResumeDispatchRequest) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{2}
+}
+
+type ResumeDispatchResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResumeDispatchResponse) Reset() {
+	*x = ResumeDispatchResponse{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResumeDispatchResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResumeDispatchResponse) ProtoMessage() {}
+
+func (x *ResumeDispatchResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResumeDispatchResponse.ProtoReflect.Descriptor instead.
+func (*ResumeDispatchResponse) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{3}
+}
+
+type GetDispatchStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDispatchStatusRequest) Reset() {
+	*x = GetDispatchStatusRequest{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDispatchStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDispatchStatusRequest) ProtoMessage() {}
+
+func (x *GetDispatchStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDispatchStatusRequest.ProtoReflect.Descriptor instead.
+func (*GetDispatchStatusRequest) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{4}
+}
+
+type GetDispatchStatusResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Paused        bool                   `protobuf:"varint,1,opt,name=paused,proto3" json:"paused,omitempty"`
+	Reason        string                 `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
+	PausedAt      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=paused_at,json=pausedAt,proto3" json:"paused_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDispatchStatusResponse) Reset() {
+	*x = GetDispatchStatusResponse{}
+	mi := &file_pulse_v1_pulse_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDispatchStatusResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDispatchStatusResponse) ProtoMessage() {}
+
+func (x *GetDispatchStatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pulse_v1_pulse_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDispatchStatusResponse.ProtoReflect.Descriptor instead.
+func (*GetDispatchStatusResponse) Descriptor() ([]byte, []int) {
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetDispatchStatusResponse) GetPaused() bool {
+	if x != nil {
+		return x.Paused
+	}
+	return false
+}
+
+func (x *GetDispatchStatusResponse) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *GetDispatchStatusResponse) GetPausedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PausedAt
+	}
+	return nil
+}
+
 type SubmitJobRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Topic         string                 `protobuf:"bytes,1,opt,name=topic,proto3" json:"topic,omitempty"`
@@ -34,7 +282,7 @@ type SubmitJobRequest struct {
 
 func (x *SubmitJobRequest) Reset() {
 	*x = SubmitJobRequest{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[0]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +294,7 @@ func (x *SubmitJobRequest) String() string {
 func (*SubmitJobRequest) ProtoMessage() {}
 
 func (x *SubmitJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[0]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,7 +307,7 @@ func (x *SubmitJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitJobRequest.ProtoReflect.Descriptor instead.
 func (*SubmitJobRequest) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{0}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *SubmitJobRequest) GetTopic() string {
@@ -92,7 +340,7 @@ type SubmitJobResponse struct {
 
 func (x *SubmitJobResponse) Reset() {
 	*x = SubmitJobResponse{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[1]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -104,7 +352,7 @@ func (x *SubmitJobResponse) String() string {
 func (*SubmitJobResponse) ProtoMessage() {}
 
 func (x *SubmitJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[1]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -117,7 +365,7 @@ func (x *SubmitJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitJobResponse.ProtoReflect.Descriptor instead.
 func (*SubmitJobResponse) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{1}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *SubmitJobResponse) GetJobId() string {
@@ -136,7 +384,7 @@ type GetJobRequest struct {
 
 func (x *GetJobRequest) Reset() {
 	*x = GetJobRequest{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[2]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -148,7 +396,7 @@ func (x *GetJobRequest) String() string {
 func (*GetJobRequest) ProtoMessage() {}
 
 func (x *GetJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[2]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -161,7 +409,7 @@ func (x *GetJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetJobRequest.ProtoReflect.Descriptor instead.
 func (*GetJobRequest) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{2}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetJobRequest) GetJobId() string {
@@ -180,7 +428,7 @@ type GetJobResponse struct {
 
 func (x *GetJobResponse) Reset() {
 	*x = GetJobResponse{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[3]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -192,7 +440,7 @@ func (x *GetJobResponse) String() string {
 func (*GetJobResponse) ProtoMessage() {}
 
 func (x *GetJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[3]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -205,7 +453,7 @@ func (x *GetJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetJobResponse.ProtoReflect.Descriptor instead.
 func (*GetJobResponse) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{3}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetJobResponse) GetJob() *JobView {
@@ -225,7 +473,7 @@ type JobView struct {
 
 func (x *JobView) Reset() {
 	*x = JobView{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[4]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -237,7 +485,7 @@ func (x *JobView) String() string {
 func (*JobView) ProtoMessage() {}
 
 func (x *JobView) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[4]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -250,7 +498,7 @@ func (x *JobView) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobView.ProtoReflect.Descriptor instead.
 func (*JobView) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{4}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *JobView) GetJobId() string {
@@ -277,7 +525,7 @@ type StreamJobsRequest struct {
 
 func (x *StreamJobsRequest) Reset() {
 	*x = StreamJobsRequest{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[5]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -289,7 +537,7 @@ func (x *StreamJobsRequest) String() string {
 func (*StreamJobsRequest) ProtoMessage() {}
 
 func (x *StreamJobsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[5]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -302,7 +550,7 @@ func (x *StreamJobsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamJobsRequest.ProtoReflect.Descriptor instead.
 func (*StreamJobsRequest) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{5}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *StreamJobsRequest) GetTopics() []string {
@@ -328,7 +576,7 @@ type StreamJobsResponse struct {
 
 func (x *StreamJobsResponse) Reset() {
 	*x = StreamJobsResponse{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[6]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -340,7 +588,7 @@ func (x *StreamJobsResponse) String() string {
 func (*StreamJobsResponse) ProtoMessage() {}
 
 func (x *StreamJobsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[6]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -353,7 +601,7 @@ func (x *StreamJobsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamJobsResponse.ProtoReflect.Descriptor instead.
 func (*StreamJobsResponse) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{6}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *StreamJobsResponse) GetAssignment() *JobAssignment {
@@ -376,7 +624,7 @@ type JobAssignment struct {
 
 func (x *JobAssignment) Reset() {
 	*x = JobAssignment{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[7]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -388,7 +636,7 @@ func (x *JobAssignment) String() string {
 func (*JobAssignment) ProtoMessage() {}
 
 func (x *JobAssignment) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[7]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -401,7 +649,7 @@ func (x *JobAssignment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JobAssignment.ProtoReflect.Descriptor instead.
 func (*JobAssignment) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{7}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *JobAssignment) GetJobId() string {
@@ -450,7 +698,7 @@ type ReportResultRequest struct {
 
 func (x *ReportResultRequest) Reset() {
 	*x = ReportResultRequest{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[8]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -462,7 +710,7 @@ func (x *ReportResultRequest) String() string {
 func (*ReportResultRequest) ProtoMessage() {}
 
 func (x *ReportResultRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[8]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -475,7 +723,7 @@ func (x *ReportResultRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportResultRequest.ProtoReflect.Descriptor instead.
 func (*ReportResultRequest) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{8}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ReportResultRequest) GetJobId() string {
@@ -507,7 +755,7 @@ type ReportResultResponse struct {
 
 func (x *ReportResultResponse) Reset() {
 	*x = ReportResultResponse{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[9]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -519,7 +767,7 @@ func (x *ReportResultResponse) String() string {
 func (*ReportResultResponse) ProtoMessage() {}
 
 func (x *ReportResultResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[9]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -532,7 +780,7 @@ func (x *ReportResultResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportResultResponse.ProtoReflect.Descriptor instead.
 func (*ReportResultResponse) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{9}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{15}
 }
 
 type HeartbeatRequest struct {
@@ -545,7 +793,7 @@ type HeartbeatRequest struct {
 
 func (x *HeartbeatRequest) Reset() {
 	*x = HeartbeatRequest{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[10]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -557,7 +805,7 @@ func (x *HeartbeatRequest) String() string {
 func (*HeartbeatRequest) ProtoMessage() {}
 
 func (x *HeartbeatRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[10]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -570,7 +818,7 @@ func (x *HeartbeatRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HeartbeatRequest.ProtoReflect.Descriptor instead.
 func (*HeartbeatRequest) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{10}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *HeartbeatRequest) GetJobId() string {
@@ -596,7 +844,7 @@ type HeartbeatResponse struct {
 
 func (x *HeartbeatResponse) Reset() {
 	*x = HeartbeatResponse{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[11]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -608,7 +856,7 @@ func (x *HeartbeatResponse) String() string {
 func (*HeartbeatResponse) ProtoMessage() {}
 
 func (x *HeartbeatResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[11]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -621,7 +869,7 @@ func (x *HeartbeatResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HeartbeatResponse.ProtoReflect.Descriptor instead.
 func (*HeartbeatResponse) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{11}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *HeartbeatResponse) GetShouldStop() bool {
@@ -647,7 +895,7 @@ type CreateScheduleRequest struct {
 
 func (x *CreateScheduleRequest) Reset() {
 	*x = CreateScheduleRequest{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[12]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -659,7 +907,7 @@ func (x *CreateScheduleRequest) String() string {
 func (*CreateScheduleRequest) ProtoMessage() {}
 
 func (x *CreateScheduleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[12]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -672,7 +920,7 @@ func (x *CreateScheduleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateScheduleRequest.ProtoReflect.Descriptor instead.
 func (*CreateScheduleRequest) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{12}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *CreateScheduleRequest) GetTopic() string {
@@ -754,7 +1002,7 @@ type CreateScheduleResponse struct {
 
 func (x *CreateScheduleResponse) Reset() {
 	*x = CreateScheduleResponse{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[13]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -766,7 +1014,7 @@ func (x *CreateScheduleResponse) String() string {
 func (*CreateScheduleResponse) ProtoMessage() {}
 
 func (x *CreateScheduleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[13]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -779,7 +1027,7 @@ func (x *CreateScheduleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateScheduleResponse.ProtoReflect.Descriptor instead.
 func (*CreateScheduleResponse) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{13}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *CreateScheduleResponse) GetScheduleId() string {
@@ -798,7 +1046,7 @@ type PauseScheduleRequest struct {
 
 func (x *PauseScheduleRequest) Reset() {
 	*x = PauseScheduleRequest{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[14]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -810,7 +1058,7 @@ func (x *PauseScheduleRequest) String() string {
 func (*PauseScheduleRequest) ProtoMessage() {}
 
 func (x *PauseScheduleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[14]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -823,7 +1071,7 @@ func (x *PauseScheduleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PauseScheduleRequest.ProtoReflect.Descriptor instead.
 func (*PauseScheduleRequest) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{14}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *PauseScheduleRequest) GetScheduleId() string {
@@ -841,7 +1089,7 @@ type PauseScheduleResponse struct {
 
 func (x *PauseScheduleResponse) Reset() {
 	*x = PauseScheduleResponse{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[15]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -853,7 +1101,7 @@ func (x *PauseScheduleResponse) String() string {
 func (*PauseScheduleResponse) ProtoMessage() {}
 
 func (x *PauseScheduleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[15]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -866,7 +1114,7 @@ func (x *PauseScheduleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PauseScheduleResponse.ProtoReflect.Descriptor instead.
 func (*PauseScheduleResponse) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{15}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{21}
 }
 
 type ResumeScheduleRequest struct {
@@ -878,7 +1126,7 @@ type ResumeScheduleRequest struct {
 
 func (x *ResumeScheduleRequest) Reset() {
 	*x = ResumeScheduleRequest{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[16]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -890,7 +1138,7 @@ func (x *ResumeScheduleRequest) String() string {
 func (*ResumeScheduleRequest) ProtoMessage() {}
 
 func (x *ResumeScheduleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[16]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -903,7 +1151,7 @@ func (x *ResumeScheduleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResumeScheduleRequest.ProtoReflect.Descriptor instead.
 func (*ResumeScheduleRequest) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{16}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *ResumeScheduleRequest) GetScheduleId() string {
@@ -921,7 +1169,7 @@ type ResumeScheduleResponse struct {
 
 func (x *ResumeScheduleResponse) Reset() {
 	*x = ResumeScheduleResponse{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[17]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -933,7 +1181,7 @@ func (x *ResumeScheduleResponse) String() string {
 func (*ResumeScheduleResponse) ProtoMessage() {}
 
 func (x *ResumeScheduleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[17]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -946,7 +1194,7 @@ func (x *ResumeScheduleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResumeScheduleResponse.ProtoReflect.Descriptor instead.
 func (*ResumeScheduleResponse) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{17}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{23}
 }
 
 type DeleteScheduleRequest struct {
@@ -958,7 +1206,7 @@ type DeleteScheduleRequest struct {
 
 func (x *DeleteScheduleRequest) Reset() {
 	*x = DeleteScheduleRequest{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[18]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -970,7 +1218,7 @@ func (x *DeleteScheduleRequest) String() string {
 func (*DeleteScheduleRequest) ProtoMessage() {}
 
 func (x *DeleteScheduleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[18]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -983,7 +1231,7 @@ func (x *DeleteScheduleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteScheduleRequest.ProtoReflect.Descriptor instead.
 func (*DeleteScheduleRequest) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{18}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *DeleteScheduleRequest) GetScheduleId() string {
@@ -1001,7 +1249,7 @@ type DeleteScheduleResponse struct {
 
 func (x *DeleteScheduleResponse) Reset() {
 	*x = DeleteScheduleResponse{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[19]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1013,7 +1261,7 @@ func (x *DeleteScheduleResponse) String() string {
 func (*DeleteScheduleResponse) ProtoMessage() {}
 
 func (x *DeleteScheduleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[19]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1026,7 +1274,7 @@ func (x *DeleteScheduleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteScheduleResponse.ProtoReflect.Descriptor instead.
 func (*DeleteScheduleResponse) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{19}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{25}
 }
 
 type ScheduleView struct {
@@ -1045,7 +1293,7 @@ type ScheduleView struct {
 
 func (x *ScheduleView) Reset() {
 	*x = ScheduleView{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[20]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1057,7 +1305,7 @@ func (x *ScheduleView) String() string {
 func (*ScheduleView) ProtoMessage() {}
 
 func (x *ScheduleView) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[20]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1070,7 +1318,7 @@ func (x *ScheduleView) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScheduleView.ProtoReflect.Descriptor instead.
 func (*ScheduleView) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{20}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ScheduleView) GetScheduleId() string {
@@ -1137,7 +1385,7 @@ type ListSchedulesRequest struct {
 
 func (x *ListSchedulesRequest) Reset() {
 	*x = ListSchedulesRequest{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[21]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1149,7 +1397,7 @@ func (x *ListSchedulesRequest) String() string {
 func (*ListSchedulesRequest) ProtoMessage() {}
 
 func (x *ListSchedulesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[21]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1162,7 +1410,7 @@ func (x *ListSchedulesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSchedulesRequest.ProtoReflect.Descriptor instead.
 func (*ListSchedulesRequest) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{21}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{27}
 }
 
 type ListSchedulesResponse struct {
@@ -1174,7 +1422,7 @@ type ListSchedulesResponse struct {
 
 func (x *ListSchedulesResponse) Reset() {
 	*x = ListSchedulesResponse{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[22]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1186,7 +1434,7 @@ func (x *ListSchedulesResponse) String() string {
 func (*ListSchedulesResponse) ProtoMessage() {}
 
 func (x *ListSchedulesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[22]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1199,7 +1447,7 @@ func (x *ListSchedulesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSchedulesResponse.ProtoReflect.Descriptor instead.
 func (*ListSchedulesResponse) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{22}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ListSchedulesResponse) GetSchedules() []*ScheduleView {
@@ -1218,7 +1466,7 @@ type ListScheduleJobsRequest struct {
 
 func (x *ListScheduleJobsRequest) Reset() {
 	*x = ListScheduleJobsRequest{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[23]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1230,7 +1478,7 @@ func (x *ListScheduleJobsRequest) String() string {
 func (*ListScheduleJobsRequest) ProtoMessage() {}
 
 func (x *ListScheduleJobsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[23]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1243,7 +1491,7 @@ func (x *ListScheduleJobsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListScheduleJobsRequest.ProtoReflect.Descriptor instead.
 func (*ListScheduleJobsRequest) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{23}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ListScheduleJobsRequest) GetScheduleId() string {
@@ -1262,7 +1510,7 @@ type ListScheduleJobsResponse struct {
 
 func (x *ListScheduleJobsResponse) Reset() {
 	*x = ListScheduleJobsResponse{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[24]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1274,7 +1522,7 @@ func (x *ListScheduleJobsResponse) String() string {
 func (*ListScheduleJobsResponse) ProtoMessage() {}
 
 func (x *ListScheduleJobsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[24]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1287,7 +1535,7 @@ func (x *ListScheduleJobsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListScheduleJobsResponse.ProtoReflect.Descriptor instead.
 func (*ListScheduleJobsResponse) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{24}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ListScheduleJobsResponse) GetJobs() []*JobView {
@@ -1307,7 +1555,7 @@ type ScheduleFire struct {
 
 func (x *ScheduleFire) Reset() {
 	*x = ScheduleFire{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[25]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1319,7 +1567,7 @@ func (x *ScheduleFire) String() string {
 func (*ScheduleFire) ProtoMessage() {}
 
 func (x *ScheduleFire) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[25]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1332,7 +1580,7 @@ func (x *ScheduleFire) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ScheduleFire.ProtoReflect.Descriptor instead.
 func (*ScheduleFire) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{25}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ScheduleFire) GetJobId() string {
@@ -1358,7 +1606,7 @@ type ListScheduleFiresRequest struct {
 
 func (x *ListScheduleFiresRequest) Reset() {
 	*x = ListScheduleFiresRequest{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[26]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1370,7 +1618,7 @@ func (x *ListScheduleFiresRequest) String() string {
 func (*ListScheduleFiresRequest) ProtoMessage() {}
 
 func (x *ListScheduleFiresRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[26]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1383,7 +1631,7 @@ func (x *ListScheduleFiresRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListScheduleFiresRequest.ProtoReflect.Descriptor instead.
 func (*ListScheduleFiresRequest) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{26}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ListScheduleFiresRequest) GetScheduleId() string {
@@ -1402,7 +1650,7 @@ type ListScheduleFiresResponse struct {
 
 func (x *ListScheduleFiresResponse) Reset() {
 	*x = ListScheduleFiresResponse{}
-	mi := &file_pulse_v1_pulse_proto_msgTypes[27]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1414,7 +1662,7 @@ func (x *ListScheduleFiresResponse) String() string {
 func (*ListScheduleFiresResponse) ProtoMessage() {}
 
 func (x *ListScheduleFiresResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pulse_v1_pulse_proto_msgTypes[27]
+	mi := &file_pulse_v1_pulse_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1427,7 +1675,7 @@ func (x *ListScheduleFiresResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListScheduleFiresResponse.ProtoReflect.Descriptor instead.
 func (*ListScheduleFiresResponse) Descriptor() ([]byte, []int) {
-	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{27}
+	return file_pulse_v1_pulse_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ListScheduleFiresResponse) GetFires() []*ScheduleFire {
@@ -1441,7 +1689,17 @@ var File_pulse_v1_pulse_proto protoreflect.FileDescriptor
 
 const file_pulse_v1_pulse_proto_rawDesc = "" +
 	"\n" +
-	"\x14pulse/v1/pulse.proto\x12\bpulse.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\"^\n" +
+	"\x14pulse/v1/pulse.proto\x12\bpulse.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\".\n" +
+	"\x14PauseDispatchRequest\x12\x16\n" +
+	"\x06reason\x18\x01 \x01(\tR\x06reason\"\x17\n" +
+	"\x15PauseDispatchResponse\"\x17\n" +
+	"\x15ResumeDispatchRequest\"\x18\n" +
+	"\x16ResumeDispatchResponse\"\x1a\n" +
+	"\x18GetDispatchStatusRequest\"\x84\x01\n" +
+	"\x19GetDispatchStatusResponse\x12\x16\n" +
+	"\x06paused\x18\x01 \x01(\bR\x06paused\x12\x16\n" +
+	"\x06reason\x18\x02 \x01(\tR\x06reason\x127\n" +
+	"\tpaused_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\bpausedAt\"^\n" +
 	"\x10SubmitJobRequest\x12\x14\n" +
 	"\x05topic\x18\x01 \x01(\tR\x05topic\x12\x18\n" +
 	"\apayload\x18\x02 \x01(\fR\apayload\x12\x1a\n" +
@@ -1526,7 +1784,7 @@ const file_pulse_v1_pulse_proto_rawDesc = "" +
 	"\vschedule_id\x18\x01 \x01(\tR\n" +
 	"scheduleId\"I\n" +
 	"\x19ListScheduleFiresResponse\x12,\n" +
-	"\x05fires\x18\x01 \x03(\v2\x16.pulse.v1.ScheduleFireR\x05fires2\xcd\a\n" +
+	"\x05fires\x18\x01 \x03(\v2\x16.pulse.v1.ScheduleFireR\x05fires2\xd2\t\n" +
 	"\fPulseService\x12D\n" +
 	"\tSubmitJob\x12\x1a.pulse.v1.SubmitJobRequest\x1a\x1b.pulse.v1.SubmitJobResponse\x12;\n" +
 	"\x06GetJob\x12\x17.pulse.v1.GetJobRequest\x1a\x18.pulse.v1.GetJobResponse\x12I\n" +
@@ -1540,7 +1798,10 @@ const file_pulse_v1_pulse_proto_rawDesc = "" +
 	"\x0eDeleteSchedule\x12\x1f.pulse.v1.DeleteScheduleRequest\x1a .pulse.v1.DeleteScheduleResponse\x12P\n" +
 	"\rListSchedules\x12\x1e.pulse.v1.ListSchedulesRequest\x1a\x1f.pulse.v1.ListSchedulesResponse\x12Y\n" +
 	"\x10ListScheduleJobs\x12!.pulse.v1.ListScheduleJobsRequest\x1a\".pulse.v1.ListScheduleJobsResponse\x12\\\n" +
-	"\x11ListScheduleFires\x12\".pulse.v1.ListScheduleFiresRequest\x1a#.pulse.v1.ListScheduleFiresResponseB'Z%github.com/bete7512/pulse/gen/pulsev1b\x06proto3"
+	"\x11ListScheduleFires\x12\".pulse.v1.ListScheduleFiresRequest\x1a#.pulse.v1.ListScheduleFiresResponse\x12P\n" +
+	"\rPauseDispatch\x12\x1e.pulse.v1.PauseDispatchRequest\x1a\x1f.pulse.v1.PauseDispatchResponse\x12S\n" +
+	"\x0eResumeDispatch\x12\x1f.pulse.v1.ResumeDispatchRequest\x1a .pulse.v1.ResumeDispatchResponse\x12\\\n" +
+	"\x11GetDispatchStatus\x12\".pulse.v1.GetDispatchStatusRequest\x1a#.pulse.v1.GetDispatchStatusResponseB'Z%github.com/bete7512/pulse/gen/pulsev1b\x06proto3"
 
 var (
 	file_pulse_v1_pulse_proto_rawDescOnce sync.Once
@@ -1554,80 +1815,93 @@ func file_pulse_v1_pulse_proto_rawDescGZIP() []byte {
 	return file_pulse_v1_pulse_proto_rawDescData
 }
 
-var file_pulse_v1_pulse_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_pulse_v1_pulse_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
 var file_pulse_v1_pulse_proto_goTypes = []any{
-	(*SubmitJobRequest)(nil),          // 0: pulse.v1.SubmitJobRequest
-	(*SubmitJobResponse)(nil),         // 1: pulse.v1.SubmitJobResponse
-	(*GetJobRequest)(nil),             // 2: pulse.v1.GetJobRequest
-	(*GetJobResponse)(nil),            // 3: pulse.v1.GetJobResponse
-	(*JobView)(nil),                   // 4: pulse.v1.JobView
-	(*StreamJobsRequest)(nil),         // 5: pulse.v1.StreamJobsRequest
-	(*StreamJobsResponse)(nil),        // 6: pulse.v1.StreamJobsResponse
-	(*JobAssignment)(nil),             // 7: pulse.v1.JobAssignment
-	(*ReportResultRequest)(nil),       // 8: pulse.v1.ReportResultRequest
-	(*ReportResultResponse)(nil),      // 9: pulse.v1.ReportResultResponse
-	(*HeartbeatRequest)(nil),          // 10: pulse.v1.HeartbeatRequest
-	(*HeartbeatResponse)(nil),         // 11: pulse.v1.HeartbeatResponse
-	(*CreateScheduleRequest)(nil),     // 12: pulse.v1.CreateScheduleRequest
-	(*CreateScheduleResponse)(nil),    // 13: pulse.v1.CreateScheduleResponse
-	(*PauseScheduleRequest)(nil),      // 14: pulse.v1.PauseScheduleRequest
-	(*PauseScheduleResponse)(nil),     // 15: pulse.v1.PauseScheduleResponse
-	(*ResumeScheduleRequest)(nil),     // 16: pulse.v1.ResumeScheduleRequest
-	(*ResumeScheduleResponse)(nil),    // 17: pulse.v1.ResumeScheduleResponse
-	(*DeleteScheduleRequest)(nil),     // 18: pulse.v1.DeleteScheduleRequest
-	(*DeleteScheduleResponse)(nil),    // 19: pulse.v1.DeleteScheduleResponse
-	(*ScheduleView)(nil),              // 20: pulse.v1.ScheduleView
-	(*ListSchedulesRequest)(nil),      // 21: pulse.v1.ListSchedulesRequest
-	(*ListSchedulesResponse)(nil),     // 22: pulse.v1.ListSchedulesResponse
-	(*ListScheduleJobsRequest)(nil),   // 23: pulse.v1.ListScheduleJobsRequest
-	(*ListScheduleJobsResponse)(nil),  // 24: pulse.v1.ListScheduleJobsResponse
-	(*ScheduleFire)(nil),              // 25: pulse.v1.ScheduleFire
-	(*ListScheduleFiresRequest)(nil),  // 26: pulse.v1.ListScheduleFiresRequest
-	(*ListScheduleFiresResponse)(nil), // 27: pulse.v1.ListScheduleFiresResponse
-	(*timestamppb.Timestamp)(nil),     // 28: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),       // 29: google.protobuf.Duration
+	(*PauseDispatchRequest)(nil),      // 0: pulse.v1.PauseDispatchRequest
+	(*PauseDispatchResponse)(nil),     // 1: pulse.v1.PauseDispatchResponse
+	(*ResumeDispatchRequest)(nil),     // 2: pulse.v1.ResumeDispatchRequest
+	(*ResumeDispatchResponse)(nil),    // 3: pulse.v1.ResumeDispatchResponse
+	(*GetDispatchStatusRequest)(nil),  // 4: pulse.v1.GetDispatchStatusRequest
+	(*GetDispatchStatusResponse)(nil), // 5: pulse.v1.GetDispatchStatusResponse
+	(*SubmitJobRequest)(nil),          // 6: pulse.v1.SubmitJobRequest
+	(*SubmitJobResponse)(nil),         // 7: pulse.v1.SubmitJobResponse
+	(*GetJobRequest)(nil),             // 8: pulse.v1.GetJobRequest
+	(*GetJobResponse)(nil),            // 9: pulse.v1.GetJobResponse
+	(*JobView)(nil),                   // 10: pulse.v1.JobView
+	(*StreamJobsRequest)(nil),         // 11: pulse.v1.StreamJobsRequest
+	(*StreamJobsResponse)(nil),        // 12: pulse.v1.StreamJobsResponse
+	(*JobAssignment)(nil),             // 13: pulse.v1.JobAssignment
+	(*ReportResultRequest)(nil),       // 14: pulse.v1.ReportResultRequest
+	(*ReportResultResponse)(nil),      // 15: pulse.v1.ReportResultResponse
+	(*HeartbeatRequest)(nil),          // 16: pulse.v1.HeartbeatRequest
+	(*HeartbeatResponse)(nil),         // 17: pulse.v1.HeartbeatResponse
+	(*CreateScheduleRequest)(nil),     // 18: pulse.v1.CreateScheduleRequest
+	(*CreateScheduleResponse)(nil),    // 19: pulse.v1.CreateScheduleResponse
+	(*PauseScheduleRequest)(nil),      // 20: pulse.v1.PauseScheduleRequest
+	(*PauseScheduleResponse)(nil),     // 21: pulse.v1.PauseScheduleResponse
+	(*ResumeScheduleRequest)(nil),     // 22: pulse.v1.ResumeScheduleRequest
+	(*ResumeScheduleResponse)(nil),    // 23: pulse.v1.ResumeScheduleResponse
+	(*DeleteScheduleRequest)(nil),     // 24: pulse.v1.DeleteScheduleRequest
+	(*DeleteScheduleResponse)(nil),    // 25: pulse.v1.DeleteScheduleResponse
+	(*ScheduleView)(nil),              // 26: pulse.v1.ScheduleView
+	(*ListSchedulesRequest)(nil),      // 27: pulse.v1.ListSchedulesRequest
+	(*ListSchedulesResponse)(nil),     // 28: pulse.v1.ListSchedulesResponse
+	(*ListScheduleJobsRequest)(nil),   // 29: pulse.v1.ListScheduleJobsRequest
+	(*ListScheduleJobsResponse)(nil),  // 30: pulse.v1.ListScheduleJobsResponse
+	(*ScheduleFire)(nil),              // 31: pulse.v1.ScheduleFire
+	(*ListScheduleFiresRequest)(nil),  // 32: pulse.v1.ListScheduleFiresRequest
+	(*ListScheduleFiresResponse)(nil), // 33: pulse.v1.ListScheduleFiresResponse
+	(*timestamppb.Timestamp)(nil),     // 34: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),       // 35: google.protobuf.Duration
 }
 var file_pulse_v1_pulse_proto_depIdxs = []int32{
-	4,  // 0: pulse.v1.GetJobResponse.job:type_name -> pulse.v1.JobView
-	7,  // 1: pulse.v1.StreamJobsResponse.assignment:type_name -> pulse.v1.JobAssignment
-	28, // 2: pulse.v1.CreateScheduleRequest.at:type_name -> google.protobuf.Timestamp
-	29, // 3: pulse.v1.CreateScheduleRequest.every:type_name -> google.protobuf.Duration
-	29, // 4: pulse.v1.ScheduleView.every:type_name -> google.protobuf.Duration
-	28, // 5: pulse.v1.ScheduleView.next_run_at:type_name -> google.protobuf.Timestamp
-	28, // 6: pulse.v1.ScheduleView.last_run_at:type_name -> google.protobuf.Timestamp
-	20, // 7: pulse.v1.ListSchedulesResponse.schedules:type_name -> pulse.v1.ScheduleView
-	4,  // 8: pulse.v1.ListScheduleJobsResponse.jobs:type_name -> pulse.v1.JobView
-	28, // 9: pulse.v1.ScheduleFire.fired_at:type_name -> google.protobuf.Timestamp
-	25, // 10: pulse.v1.ListScheduleFiresResponse.fires:type_name -> pulse.v1.ScheduleFire
-	0,  // 11: pulse.v1.PulseService.SubmitJob:input_type -> pulse.v1.SubmitJobRequest
-	2,  // 12: pulse.v1.PulseService.GetJob:input_type -> pulse.v1.GetJobRequest
-	5,  // 13: pulse.v1.PulseService.StreamJobs:input_type -> pulse.v1.StreamJobsRequest
-	8,  // 14: pulse.v1.PulseService.ReportResult:input_type -> pulse.v1.ReportResultRequest
-	10, // 15: pulse.v1.PulseService.Heartbeat:input_type -> pulse.v1.HeartbeatRequest
-	12, // 16: pulse.v1.PulseService.CreateSchedule:input_type -> pulse.v1.CreateScheduleRequest
-	14, // 17: pulse.v1.PulseService.PauseSchedule:input_type -> pulse.v1.PauseScheduleRequest
-	16, // 18: pulse.v1.PulseService.ResumeSchedule:input_type -> pulse.v1.ResumeScheduleRequest
-	18, // 19: pulse.v1.PulseService.DeleteSchedule:input_type -> pulse.v1.DeleteScheduleRequest
-	21, // 20: pulse.v1.PulseService.ListSchedules:input_type -> pulse.v1.ListSchedulesRequest
-	23, // 21: pulse.v1.PulseService.ListScheduleJobs:input_type -> pulse.v1.ListScheduleJobsRequest
-	26, // 22: pulse.v1.PulseService.ListScheduleFires:input_type -> pulse.v1.ListScheduleFiresRequest
-	1,  // 23: pulse.v1.PulseService.SubmitJob:output_type -> pulse.v1.SubmitJobResponse
-	3,  // 24: pulse.v1.PulseService.GetJob:output_type -> pulse.v1.GetJobResponse
-	6,  // 25: pulse.v1.PulseService.StreamJobs:output_type -> pulse.v1.StreamJobsResponse
-	9,  // 26: pulse.v1.PulseService.ReportResult:output_type -> pulse.v1.ReportResultResponse
-	11, // 27: pulse.v1.PulseService.Heartbeat:output_type -> pulse.v1.HeartbeatResponse
-	13, // 28: pulse.v1.PulseService.CreateSchedule:output_type -> pulse.v1.CreateScheduleResponse
-	15, // 29: pulse.v1.PulseService.PauseSchedule:output_type -> pulse.v1.PauseScheduleResponse
-	17, // 30: pulse.v1.PulseService.ResumeSchedule:output_type -> pulse.v1.ResumeScheduleResponse
-	19, // 31: pulse.v1.PulseService.DeleteSchedule:output_type -> pulse.v1.DeleteScheduleResponse
-	22, // 32: pulse.v1.PulseService.ListSchedules:output_type -> pulse.v1.ListSchedulesResponse
-	24, // 33: pulse.v1.PulseService.ListScheduleJobs:output_type -> pulse.v1.ListScheduleJobsResponse
-	27, // 34: pulse.v1.PulseService.ListScheduleFires:output_type -> pulse.v1.ListScheduleFiresResponse
-	23, // [23:35] is the sub-list for method output_type
-	11, // [11:23] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	34, // 0: pulse.v1.GetDispatchStatusResponse.paused_at:type_name -> google.protobuf.Timestamp
+	10, // 1: pulse.v1.GetJobResponse.job:type_name -> pulse.v1.JobView
+	13, // 2: pulse.v1.StreamJobsResponse.assignment:type_name -> pulse.v1.JobAssignment
+	34, // 3: pulse.v1.CreateScheduleRequest.at:type_name -> google.protobuf.Timestamp
+	35, // 4: pulse.v1.CreateScheduleRequest.every:type_name -> google.protobuf.Duration
+	35, // 5: pulse.v1.ScheduleView.every:type_name -> google.protobuf.Duration
+	34, // 6: pulse.v1.ScheduleView.next_run_at:type_name -> google.protobuf.Timestamp
+	34, // 7: pulse.v1.ScheduleView.last_run_at:type_name -> google.protobuf.Timestamp
+	26, // 8: pulse.v1.ListSchedulesResponse.schedules:type_name -> pulse.v1.ScheduleView
+	10, // 9: pulse.v1.ListScheduleJobsResponse.jobs:type_name -> pulse.v1.JobView
+	34, // 10: pulse.v1.ScheduleFire.fired_at:type_name -> google.protobuf.Timestamp
+	31, // 11: pulse.v1.ListScheduleFiresResponse.fires:type_name -> pulse.v1.ScheduleFire
+	6,  // 12: pulse.v1.PulseService.SubmitJob:input_type -> pulse.v1.SubmitJobRequest
+	8,  // 13: pulse.v1.PulseService.GetJob:input_type -> pulse.v1.GetJobRequest
+	11, // 14: pulse.v1.PulseService.StreamJobs:input_type -> pulse.v1.StreamJobsRequest
+	14, // 15: pulse.v1.PulseService.ReportResult:input_type -> pulse.v1.ReportResultRequest
+	16, // 16: pulse.v1.PulseService.Heartbeat:input_type -> pulse.v1.HeartbeatRequest
+	18, // 17: pulse.v1.PulseService.CreateSchedule:input_type -> pulse.v1.CreateScheduleRequest
+	20, // 18: pulse.v1.PulseService.PauseSchedule:input_type -> pulse.v1.PauseScheduleRequest
+	22, // 19: pulse.v1.PulseService.ResumeSchedule:input_type -> pulse.v1.ResumeScheduleRequest
+	24, // 20: pulse.v1.PulseService.DeleteSchedule:input_type -> pulse.v1.DeleteScheduleRequest
+	27, // 21: pulse.v1.PulseService.ListSchedules:input_type -> pulse.v1.ListSchedulesRequest
+	29, // 22: pulse.v1.PulseService.ListScheduleJobs:input_type -> pulse.v1.ListScheduleJobsRequest
+	32, // 23: pulse.v1.PulseService.ListScheduleFires:input_type -> pulse.v1.ListScheduleFiresRequest
+	0,  // 24: pulse.v1.PulseService.PauseDispatch:input_type -> pulse.v1.PauseDispatchRequest
+	2,  // 25: pulse.v1.PulseService.ResumeDispatch:input_type -> pulse.v1.ResumeDispatchRequest
+	4,  // 26: pulse.v1.PulseService.GetDispatchStatus:input_type -> pulse.v1.GetDispatchStatusRequest
+	7,  // 27: pulse.v1.PulseService.SubmitJob:output_type -> pulse.v1.SubmitJobResponse
+	9,  // 28: pulse.v1.PulseService.GetJob:output_type -> pulse.v1.GetJobResponse
+	12, // 29: pulse.v1.PulseService.StreamJobs:output_type -> pulse.v1.StreamJobsResponse
+	15, // 30: pulse.v1.PulseService.ReportResult:output_type -> pulse.v1.ReportResultResponse
+	17, // 31: pulse.v1.PulseService.Heartbeat:output_type -> pulse.v1.HeartbeatResponse
+	19, // 32: pulse.v1.PulseService.CreateSchedule:output_type -> pulse.v1.CreateScheduleResponse
+	21, // 33: pulse.v1.PulseService.PauseSchedule:output_type -> pulse.v1.PauseScheduleResponse
+	23, // 34: pulse.v1.PulseService.ResumeSchedule:output_type -> pulse.v1.ResumeScheduleResponse
+	25, // 35: pulse.v1.PulseService.DeleteSchedule:output_type -> pulse.v1.DeleteScheduleResponse
+	28, // 36: pulse.v1.PulseService.ListSchedules:output_type -> pulse.v1.ListSchedulesResponse
+	30, // 37: pulse.v1.PulseService.ListScheduleJobs:output_type -> pulse.v1.ListScheduleJobsResponse
+	33, // 38: pulse.v1.PulseService.ListScheduleFires:output_type -> pulse.v1.ListScheduleFiresResponse
+	1,  // 39: pulse.v1.PulseService.PauseDispatch:output_type -> pulse.v1.PauseDispatchResponse
+	3,  // 40: pulse.v1.PulseService.ResumeDispatch:output_type -> pulse.v1.ResumeDispatchResponse
+	5,  // 41: pulse.v1.PulseService.GetDispatchStatus:output_type -> pulse.v1.GetDispatchStatusResponse
+	27, // [27:42] is the sub-list for method output_type
+	12, // [12:27] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_pulse_v1_pulse_proto_init() }
@@ -1635,7 +1909,7 @@ func file_pulse_v1_pulse_proto_init() {
 	if File_pulse_v1_pulse_proto != nil {
 		return
 	}
-	file_pulse_v1_pulse_proto_msgTypes[12].OneofWrappers = []any{
+	file_pulse_v1_pulse_proto_msgTypes[18].OneofWrappers = []any{
 		(*CreateScheduleRequest_At)(nil),
 		(*CreateScheduleRequest_Every)(nil),
 		(*CreateScheduleRequest_Cron)(nil),
@@ -1646,7 +1920,7 @@ func file_pulse_v1_pulse_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pulse_v1_pulse_proto_rawDesc), len(file_pulse_v1_pulse_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   28,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -18,5 +18,9 @@ func CatchUp(p ProjectorService, ctx context.Context) error {
 }
 func Tick(s SchedulerService, ctx context.Context) error { return s.(*schedulerService).tick(ctx) }
 
+// Refresh runs one tick of the pause-control loop (row → gate) so tests can assert the
+// fail-open behaviour without waiting on the ticker.
+func Refresh(p PauseControlService, ctx context.Context) { p.(*pauseControlService).refresh(ctx) }
+
 // NextRun exposes the pure next-occurrence computation for table-driven testing.
 func NextRun(s domain.Schedule, now time.Time) (time.Time, error) { return nextRun(s, now) }
