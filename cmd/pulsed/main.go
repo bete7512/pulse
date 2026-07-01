@@ -120,7 +120,7 @@ func serveGRPC(svc service.JobService, scheduleAdmin service.ScheduleService, lo
 	if err != nil {
 		return nil, fmt.Errorf("listen %s: %w", grpcAddr, err)
 	}
-	gs := grpc.NewServer()
+	gs := grpc.NewServer(grpcserver.ServerOptions()...)
 	pulsev1.RegisterPulseServiceServer(gs, grpcserver.New(svc, scheduleAdmin))
 
 	go func() {
